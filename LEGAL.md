@@ -37,42 +37,102 @@ Derived artefacts (features, fitted parameters) are not encumbered.
 
 ---
 
-### Codeforces open dataset (end-2024 release) — VERIFY
+### Codeforces open dataset (end-2024) — CONSIDERED, DECLINED
 
 | Field | Value |
 |---|---|
-| Author | Codeforces (Mike Mirzayanov) |
-| Licence | **VERIFY** at the announcing blog entry |
-| Source URL | **VERIFY** — locate the official Codeforces blog release post |
-| Scale | ~17.6M submission records |
-| Read date | — |
-| Commercial use | Unknown |
-| Share-alike | Unknown |
+| Author | `denk` (Codeforces community member) — **not** Codeforces |
+| Licence as published | CC BY 4.0 |
+| Licence URL | https://creativecommons.org/licenses/by/4.0/ |
+| Source URL | https://huggingface.co/datasets/denkCF/UsersCodeforcesSubmissionsEnd2024 |
+| Announcement | https://codeforces.com/blog/entry/136853 |
+| Scale | 17,607,999 rows, 135 MB, six columns |
+| Read date | 2026-08-04 |
+| Read by | Ayush Gupta |
+| Disposition | **Declined.** Not ingested. |
 
-**Blocking check.** This is the largest single source after CodeNet and the one
-with the least formal licensing. If no explicit licence is stated, treat it as
-all-rights-reserved and fall back to the official API under its own terms. Record
-the outcome here either way; "no licence found" is a valid verified state and it
-means **do not ingest**.
+**Why this is declined.** This is not a finding that the licence is defective. CC BY
+4.0 is stated plainly on the dataset card and in the repository metadata, permits
+commercial use, and carries no share-alike clause. Three things make ingestion
+unnecessary and therefore unwise.
+
+First, the grant comes from a party who does not hold the underlying rights. The
+author collected the data through the Codeforces API and republished it. Codeforces'
+Terms restrict sublicensing of Website material, and their Your Content clause vests
+a sublicensable licence in Codeforces rather than in any third party. Whether that
+renders the CC BY 4.0 grant ineffective over bare factual records is a real question.
+It is also a question we do not have to answer.
+
+Second, the same records are reproducible directly from the official API under its
+own terms — `user.ratedList` followed by paginated `user.status`. Collecting them
+ourselves puts Codrona in the author's position rather than downstream of it, and
+removes the third-party grant from the provenance chain entirely.
+
+Third, self-collection returns strictly more: problem tags, programming language,
+`participantType` (contest versus practice), time and memory consumed, full verdict
+detail, and public handles that are not anonymised. The published file carries six
+columns and no tags, which cannot satisfy the content-based-features gate for
+previously unseen problems. The convenience copy was never sufficient for the models
+we intend to fit.
+
+**Privacy note.** Handles in the published file are anonymised and shuffled, but a
+commenter on the announcement demonstrated identifying his own records by matching
+submission patterns within narrow rating bands. Codrona does not attempt
+re-identification of anonymised data from any source. This applies whether or not a
+dataset is ingested.
+
+**Re-open condition.** If direct API collection becomes unavailable, this row may be
+revisited — but the sublicensing question must be resolved first, not assumed away.
 
 ---
 
-### Codeforces API — VERIFY
+### Codeforces API — VERIFIED
 
 | Field | Value |
 |---|---|
-| Author | Codeforces |
-| Terms URL | https://codeforces.com/apiHelp |
-| Rate limit | ~5 requests/second (hard) |
-| Scale | ~8,000+ problems, live |
-| Read date | — |
-| Role | Primary live integration |
+| Author | CODEFORCES GLOBAL - FZCO (UAE, reg. DSO-FZCO-51038) |
+| Terms URL | https://codeforces.com/terms |
+| API documentation | https://codeforces.com/apiHelp |
+| Licence | None stated on the API page; the site Terms govern |
+| Rate limit | **1 request per 2 seconds** (documented) |
+| Governing law | United Arab Emirates |
+| Scale | ~8,000+ problems; full public submission metadata; live |
+| Read date | 2026-08-04 |
+| Read by | Ayush Gupta |
+| Role | Primary live integration **and** the Codeforces bulk corpus |
+| Disposition | Ingestion permitted under the operating rules below |
 
-**Operating rules.** One request per 200 ms minimum, enforced in code, not by
-convention. Responses cached aggressively; re-fetch only on a freshness miss.
-Descriptive `User-Agent` identifying Codrona with a contact URL. On HTTP 429 or any
-challenge response, back off exponentially and stop — never retry through a block,
-never route around one.
+**Rate limit correction.** The documented limit is one call per two seconds. The
+figure of roughly five requests per second, carried in earlier drafts of this file
+and in the project documents, is community folklore and is wrong by a factor of ten.
+Canonical Numbers records 1 req / 2 s.
+
+**Operating rules — enforced in code, not by convention.**
+
+1. Minimum 2000 ms between calls, through a single global limiter shared by every worker. Parallelism does not multiply the budget.
+2. Descriptive `User-Agent` identifying Codrona with a contact URL.
+3. Responses cached aggressively; re-fetch only on a freshness miss.
+4. On `FAILED` with "Call limit exceeded", on HTTP 429, or on any challenge response: exponential backoff, then stop. Never retry through a block, never route around one.
+5. **Link, never host.** Store identifiers, tags, ratings, verdicts, timestamps, language — facts. Never store or serve Codeforces problem statements or editorials. Every problem reference in any Codrona surface deep-links to codeforces.com.
+6. Per-user data is fetched only for handles a user has connected themselves. Public problemset metadata is fetched globally.
+7. Bulk collection runs `user.ratedList` then paginated `user.status`, resumable, checkpointed. Expect 11-12 hours unattended at the documented limit.
+
+**Note on source code.** The API returns submission metadata only; it does not return
+submitted source. Codrona therefore holds and redistributes no Codeforces user code,
+which is consistent with the Your Content clause vesting those rights elsewhere.
+
+**Restrictions clause — two live consequences.** The Terms expressly restrict selling,
+sublicensing or otherwise commercialising any Website material, and separately
+restrict using the Website for advertising or marketing.
+
+- **Before any paid surface ships:** a paid tier built on Codeforces-derived output is not clearly covered by the reading above. Either obtain written permission from CODEFORCES GLOBAL - FZCO, or exclude Codeforces-derived output from the paid surface. This blocks the commercial milestone, not ingestion.
+- **At launch:** announcement and marketing material may not be posted to Codeforces. Publish elsewhere and link inward.
+
+**Re-verification.** Codeforces may revise these Terms at any time without notice.
+Re-read before each release-train milestone and on the standing re-verification
+cadence.
+
+*Not legal advice.*
 
 ---
 
