@@ -59,20 +59,20 @@ The two genuinely blocking artefacts. Do these first; everything else can slip.
 
 Non-negotiable, and it must be proven, not assumed.
 
-- [ ] Grant third-party OAuth application access for the org:
+- [x] Grant third-party OAuth application access for the org:
       `https://github.com/organizations/codronahq/settings/oauth_application_policy`
       New orgs block these by default, which is what makes this step invisible until
       it fails.
-- [ ] Publish `CLA.md` as a public gist (CLA Assistant reads a gist, not a repo file)
-- [ ] Sign in at `https://cla-assistant.io/` and link the gist to `mind`, `grid`,
+- [x] Publish `CLA.md` as a public gist (CLA Assistant reads a gist, not a repo file)
+- [x] Sign in at `https://cla-assistant.io/` and link the gist to `mind`, `grid`,
       `lens`, and `core`
-- [ ] **Prove it fires.** CLA Assistant registers no visible webhook and never
+- [x] **Prove it fires.** CLA Assistant registers no visible webhook and never
       appears under Installed GitHub Apps, so the only real test is a pull request
       from an account that is not an owner. Create a throwaway GitHub account, fork
       `docs`, open a trivial PR, and confirm the CLA check appears.
       If you skip this, you do not know whether the CLA works, and you will find out
       when it is too late to fix.
-- [ ] Close the test PR; keep the throwaway account for future integration tests
+- [x] Close the test PR; keep the throwaway account for future integration tests
 
 Make the test PR contain real content. Whitespace-only changes get silently undone by
 the end-of-file and trailing-whitespace hooks, aborting the commit and leaving a
@@ -80,16 +80,16 @@ pushed branch with zero commits.
 
 ## Day 4 — core monorepo
 
-- [ ] Copy `core/` files into `~/code/codrona-core/`
-- [ ] `pnpm install`
-- [ ] `pnpm add -D turbo prettier typescript -w`
-- [ ] Verify the token package type-checks:
+- [x] Copy `core/` files into `~/code/codrona-core/`
+- [x] `pnpm install`
+- [x] `pnpm add -D turbo prettier typescript -w`
+- [x] Verify the token package type-checks:
       `./node_modules/.bin/tsc --noEmit -p packages/design-tokens`
       (bare `npx tsc` resolves a bogus `tsc@2.0.4`)
-- [ ] Scaffold `apps/web` as a minimal Next.js app consuming the Tailwind preset —
+- [x] Scaffold `apps/web` as a minimal Next.js app consuming the Tailwind preset —
       one page rendering the ten rating tiers as swatches. This is the first visual
       proof the design system works, and it is what Vercel will deploy.
-- [ ] Push; confirm CI green on the pushed commit, not just locally
+- [x] Push; confirm CI green on the pushed commit, not just locally
 
 ## Day 5 — Python service and CI
 

@@ -11,17 +11,17 @@ Progress: **Phase 0 in progress.**
 
 ## Phase 0 — Foundation (week 1)
 
-- [ ] Organisation and seven repositories created
-- [ ] ADR-0001 committed (licensing and open-core)
-- [ ] `LEGAL.md` committed; CodeNet verified; remaining sources marked VERIFY
-- [ ] CLA Assistant configured and proven with a real pull request
-- [ ] Turborepo + pnpm workspace in `core`
-- [ ] `@codrona/design-tokens` with the rating ladder
+- [x] Organisation and seven repositories created
+- [x] ADR-0001 committed (licensing and open-core)
+- [x] `LEGAL.md` committed; CodeNet verified; remaining sources marked VERIFY
+- [x] CLA Assistant configured and proven with a real pull request
+- [x] Turborepo + pnpm workspace in `core`
+- [x] `@codrona/design-tokens` with the rating ladder
 - [ ] ADR and RFC templates, CODEOWNERS, issue and PR templates
 - [ ] CI skeleton: lint, type-check, test on every repo
-- [ ] Branch protection and conventional commits
-- [ ] `docs` published with architecture, warehouse, ingestion, eval gates
-- [ ] Organisation profile README
+- [x] Branch protection and conventional commits
+- [x] `docs` published with architecture, warehouse, ingestion, eval gates
+- [x] Organisation profile README
 
 ## Phase 1 — Data spine (weeks 2–3)
 
