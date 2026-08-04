@@ -1,0 +1,11 @@
+# Every file in this repository is owned by the maintainer.
+* @ayushgupta07xx
+
+# Areas that must not change casually.
+/LICENSE                   @ayushgupta07xx
+/LEGAL.md                  @ayushgupta07xx
+/ROADMAP.md                @ayushgupta07xx
+/adr/                      @ayushgupta07xx
+/rfc/                      @ayushgupta07xx
+/quality/eval-gates.md     @ayushgupta07xx
+/.github/                  @ayushgupta07xx
