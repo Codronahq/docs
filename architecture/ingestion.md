@@ -30,7 +30,7 @@ Each adapter lives at `lens/ingest/adapters/<judge>.py` and implements:
 ```python
 class JudgeAdapter(Protocol):
     judge_id: str                    # "codenet" | "codeforces" | "atcoder"
-    rate_limit_per_sec: float        # enforced in code, not by convention
+    min_interval_ms: int             # enforced in code, not by convention
 
     def discover(self, since: date | None) -> Iterator[EntityRef]: ...
     def fetch(self, ref: EntityRef) -> RawRecord: ...
@@ -139,11 +139,13 @@ signature and stays distinguishable.
 only needed for the length feature and later embedding work. Ingest metadata first,
 defer the source tree.
 
-**Codeforces** — two channels. The end-2024 bulk release (pending LEGAL verification)
-for history, and the official API for live data. The API is rate-limited to roughly
-5 requests/second, enforced as a 200 ms minimum interval in the adapter with a token
-bucket, not a `sleep`. `user.status` paginates; checkpoint the cursor so an
-interrupted crawl resumes rather than restarts.
+**Codeforces** — one channel. The official API serves both history and live data;
+the third-party end-2024 bulk release is declined in LEGAL.md and is not ingested.
+The documented limit is one request per two seconds, enforced as a 2000 ms minimum
+interval through a single global limiter shared by every worker — parallelism does
+not multiply the budget. History is collected by `user.ratedList` followed by
+paginated `user.status`; checkpoint the cursor so an interrupted crawl resumes
+rather than restarts. Expect 11-12 hours for a full unattended pass.
 
 **AtCoder** — the community archive, with the project's own published limits
 honoured. Two licences apply here and both must clear LEGAL before the adapter merges.
