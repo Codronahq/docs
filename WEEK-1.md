@@ -93,16 +93,19 @@ pushed branch with zero commits.
 
 ## Day 5 — Python service and CI
 
-- [ ] Copy `mind/` files into `~/code/codrona-mind/`
-- [ ] `echo $VIRTUAL_ENV` — must be empty. `deactivate` if not.
+- [x] Copy `mind/` files into `~/code/codrona-mind/`
+- [x] `echo $VIRTUAL_ENV` — must be empty. `deactivate` if not.
       A stray venv from another project will absorb the install with no warning.
-- [ ] `python3 -m venv .venv && source .venv/bin/activate`
-- [ ] `pip install -e ".[dev]"`
-- [ ] `pre-commit install`
-- [ ] `pre-commit run --all-files` — act on this result, not the commit hook's.
+- [x] `python3.11 -m venv .venv && source .venv/bin/activate`
+      Bare `python3` is 3.10 on this host, below every service's
+      `requires-python = ">=3.11"`. It builds a venv that silently
+      diverges from CI; the tell is `.venv/lib/python3.10/`.
+- [x] `pip install -e ".[dev]"`
+- [x] `pre-commit install`
+- [x] `pre-commit run --all-files` — act on this result, not the commit hook's.
       The hook scopes mypy to changed files; `--all-files` is the real gate.
-- [ ] `pytest` green
-- [ ] Push; confirm CI green on GitHub
+- [x] `pytest` green
+- [x] Push; confirm CI green on GitHub
 - [ ] Copy `lens/`, `grid/` files into their repos and push
 
 ## Day 6 — deployment and observability
