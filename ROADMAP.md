@@ -17,8 +17,8 @@ Progress: **Phase 0 in progress.**
 - [x] CLA Assistant configured and proven with a real pull request
 - [x] Turborepo + pnpm workspace in `core`
 - [x] `@codrona/design-tokens` with the rating ladder
-- [ ] ADR and RFC templates, CODEOWNERS, issue and PR templates
-- [ ] CI skeleton: lint, type-check, test on every repo
+- [x] ADR and RFC templates, CODEOWNERS, issue and PR templates
+- [x] CI skeleton: lint, type-check, test on every repo
 - [x] Branch protection and conventional commits
 - [x] `docs` published with architecture, warehouse, ingestion, eval gates
 - [x] Organisation profile README
