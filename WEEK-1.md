@@ -106,7 +106,7 @@ pushed branch with zero commits.
       The hook scopes mypy to changed files; `--all-files` is the real gate.
 - [x] `pytest` green
 - [x] Push; confirm CI green on GitHub
-- [ ] Copy `lens/`, `grid/` files into their repos and push
+- [x] Copy `lens/`, `grid/` files into their repos and push
 
 ## Day 6 — deployment and observability
 
