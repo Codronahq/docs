@@ -168,15 +168,51 @@ Codrona entirely given §13 commercial intent — it cannot be quarantined to
 
 ---
 
-### zerotrac problem ratings — VERIFY
+### zerotrac problem ratings — VERIFIED
 
 | Field | Value |
 |---|---|
-| Author | zerotrac |
-| Licence | **VERIFY** |
-| Source URL | **VERIFY** — locate the canonical repository |
-| Role | LeetCode problem difficulty mapping |
-| Read date | — |
+| Author | Shuxin Chen (`zerotrac`) |
+| Licence | MIT |
+| Licence URL | https://github.com/zerotrac/leetcode_problem_rating/blob/main/LICENSE |
+| Source URL | https://github.com/zerotrac/leetcode_problem_rating |
+| Data files | `ratings.txt` (raw, rating-descending), `data.json` (structured) |
+| Repo state | Active — last push 2026-08-01, not archived |
+| Read date | 2026-08-04 |
+| Read by | Ayush Gupta |
+| Commercial use | Permitted |
+| Share-alike | No |
+| Obligations | Retain the copyright notice and permission text |
+| Attribution | `Copyright (c) 2021 Shuxin Chen` in `docs/ATTRIBUTION.md`, the observatory footer, and anywhere a LeetCode difficulty estimate is displayed |
+| Role | LeetCode problem-difficulty mapping. **Not corpus** — contributes zero rows to the submission count. |
+| Disposition | Ingestion permitted under the conditions below |
+
+**Why this clears where the Codeforces bulk release did not.** The ratings are not
+republished platform records. They are the author's own estimates, computed with an
+Elo system and maximum likelihood estimation over contest participant statistics.
+That is his work product and his to license. The README states the collection backend
+was deliberately withheld from publication so as not to violate any potential terms;
+the consequence for us is favourable — the component carrying terms exposure was
+never distributed, so consuming this repository involves no collection by Codrona and
+no code we could inadvertently run.
+
+**Accuracy is a labelling obligation, not a footnote.** The author states the result is
+not fully accurate and is intended for relative difficulty only. Under the honesty
+protocol these values must never be rendered as authoritative LeetCode difficulty.
+Every surface that displays one labels it as a community estimate, and the model treats
+it as a feature with uncertainty rather than ground truth.
+
+**Coverage gap.** Weekly contests 1-62 are excluded — the contest APIs differed at
+the time. Those problems carry no zerotrac rating. The pipeline falls back to Codrona's
+own IRT estimate rather than emitting a null, and the gap is expected, not a
+data-quality failure.
+
+**Freshness and dependency posture.** Updated weekly after contests by a single
+maintainer. Treated as cold-path enrichment only, never hot path. Snapshot the file at
+ingest and pin the commit SHA so a rewritten upstream cannot silently change historical
+ratings. Consistent with the rule that no external platform is load-bearing.
+
+*Not legal advice.*
 
 ---
 
@@ -216,3 +252,6 @@ Codrona entirely given §13 commercial intent — it cannot be quarantined to
 | Date | Source | Action | By |
 |---|---|---|---|
 | 2026-08-03 | IBM CodeNet | Licence verified — CDLA-Permissive-2.0 | Ayush |
+| 2026-08-04 | Codeforces API | Terms and API docs read at source — VERIFIED; rate limit corrected to 1 req / 2s | Ayush |
+| 2026-08-04 | Codeforces end-2024 bulk release (denk) | CC BY 4.0 read at source — CONSIDERED, DECLINED; reproducible via official API | Ayush |
+| 2026-08-04 | zerotrac problem ratings | MIT LICENSE read at source — VERIFIED | Ayush |
