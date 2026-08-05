@@ -136,18 +136,80 @@ cadence.
 
 ---
 
-### AtCoder archive (kenkoooo) — VERIFY
+### AtCoder archive (kenkoooo) — VERIFIED, DO NOT INGEST
 
 | Field | Value |
 |---|---|
-| Author | kenkoooo (community project), data originating from AtCoder |
-| Licence | **VERIFY** — the API repo licence and AtCoder's own terms are separate questions |
-| Source URL | https://github.com/kenkoooo/AtCoderProblems |
-| Read date | — |
+| Author | kenkoooo (community project); data originating from AtCoder Inc. |
+| Repo licence | MIT — **covers the project's code only** |
+| Repo URL | https://github.com/kenkoooo/AtCoderProblems |
+| Data licence | **None stated.** `doc/api.md` declares no licence for the API or datasets. |
+| API docs | https://github.com/kenkoooo/AtCoderProblems/blob/master/doc/api.md |
+| Bulk dataset | `https://s3-ap-northeast-1.amazonaws.com/kenkoooo/submissions.csv.gz`, refreshed weekly |
+| Rate limit | Sleep more than 1 second between accesses (project's own instruction, binding) |
+| Upstream rights holder | AtCoder Inc. — Terms at https://atcoder.jp/tos, revised 2026-06-29 |
+| Governing law (upstream) | Japan; Tokyo District Court |
+| Read date | 2026-08-04 |
+| Read by | Ayush Gupta |
+| Disposition | **Do not ingest the bulk dataset.** Per-user reads permitted under the narrow conditions below. |
 
-**Blocking check.** Two licences apply here and they are independent: the community
-tool's own licence, and AtCoder's terms governing the underlying submission data.
-Verify both. Rate limits published by the project are binding.
+**MIT covers the code, not the data.** The repository carries an MIT licence for the
+AtCoder Problems application. The API documentation states no licence for the data served
+or the datasets published. Under this file's rule, "no licence found" is a valid verified
+state, and it means do not ingest.
+
+**AtCoder changed the underlying position on 2026-06-29, and this is now the decisive
+fact.** AtCoder revised its Terms of Use to permit providing third parties such as AI
+developers with answer data, log data and metadata as machine-learning training material,
+free of charge or for a fee, with user consent. From August 2026 AtCoder licenses
+user-submitted source code to AI companies commercially, covering past submissions as well
+as new ones. Users were given global and per-submission opt-out settings and a one-month
+grace period that closed at the end of July 2026.
+
+Three consequences follow, in increasing order of seriousness.
+
+The republisher does not hold the rights. Same structure as the declined Codeforces bulk
+release: a grant made by a party who collected the data rather than owning it.
+
+Taking a free third-party copy of data the rights holder now sells commercially is the
+weakest posture available to us, and it is not improved by the copy predating the sale.
+
+**The dataset carries no opt-out signal, and cannot.** It was assembled before the
+mechanism existed and has no field to express it. Training on it would necessarily include
+submissions from users who have since formally refused AI-training use. That is not a
+licensing technicality — it overrides an expressed preference, and no reading of any
+licence makes it acceptable. This alone is dispositive.
+
+**No self-collection escape hatch exists.** AtCoder publishes no official public API, so
+the route that resolved the Codeforces row is unavailable, and scraping is barred by the
+no-circumvention rule regardless of framing.
+
+**Permitted narrow use — per-user reads, on the user's own request.** Fetching a single
+connected handle's public submission list through `atcoder-api/v3/user/submissions` is a
+different act from bulk corpus building: it is user-initiated, user-scoped, and does not
+assemble a training corpus. Conditions: only for a handle the user has connected
+themselves; minimum 1000 ms between calls per the project's own instruction; results are
+profile data, never training data; treated as cold-path and best-effort, since an
+unofficial service may change or disappear without notice. If AtCoder or kenkoooo object,
+the adapter is removed rather than worked around.
+
+**Replacement path — Aizu Online Judge.** The cross-judge property this source would
+have provided is met instead by AOJ, which publishes an official documented API and is
+preparing source-code archives. CodeNet already supplies person-level Aizu and AtCoder
+history under CDLA-Permissive-2.0. AtCoder therefore remains present in the corpus through
+2021 and Aizu extends to the present. AOJ requires its own verified row in this file,
+including the contact request its documentation asks of developers, before any adapter
+reads it.
+
+**What is actually lost.** Post-2021 AtCoder submission histories, and the live AtCoder
+profile connection. The corpus headline is unaffected: this source was never counted
+toward it.
+
+**Re-open condition.** If AtCoder offers a metadata licensing tier and Codrona has revenue
+to buy it, this row is revisited through that official channel. Pricing is not published;
+the only route is their contact form. Never through a third-party mirror.
+
+*Not legal advice.*
 
 ---
 
@@ -314,3 +376,4 @@ ratings. Consistent with the rule that no external platform is load-bearing.
 | 2026-08-04 | Codeforces end-2024 bulk release (denk) | CC BY 4.0 read at source — CONSIDERED, DECLINED; reproducible via official API | Ayush |
 | 2026-08-04 | zerotrac problem ratings | MIT LICENSE read at source — VERIFIED | Ayush |
 | 2026-08-04 | DeepMind CodeContests | Licences read at source — VERIFIED, partitioned; CodeNet-sourced problems only | Ayush |
+| 2026-08-04 | AtCoder archive (kenkoooo) | Repo MIT covers code only; no data licence. AtCoder ToS revised 2026-06-29 — VERIFIED, DO NOT INGEST | Ayush |
