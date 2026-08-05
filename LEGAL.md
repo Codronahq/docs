@@ -37,6 +37,54 @@ Derived artefacts (features, fitted parameters) are not encumbered.
 
 ---
 
+### Aizu Online Judge (AOJ) — PENDING PERMISSION
+
+| Field | Value |
+|---|---|
+| Author | University of Aizu |
+| Licence | **None stated.** No licence or terms appear on the developer site, the guides, or any of the five API documents. |
+| API docs | http://developers.u-aizu.ac.jp/ |
+| API host | https://judgeapi.u-aizu.ac.jp |
+| Published APIs | Core, Analytic, Data (test cases), Resource (descriptions, commentaries), Review — last updated 2025 |
+| Rate limit | Not published. Documentation asks callers to be respectful and avoid excessive concurrent requests. |
+| Contact | Yutaka Watanobe, yutaka@u-aizu.ac.jp — named on the developer site for archive enquiries |
+| Read date | 2026-08-04 |
+| Read by | Ayush Gupta |
+| Permission requested | 2026-08-05, by email, awaiting reply |
+| Disposition | **Do not ingest until written permission is received.** Not required for Phase 1. |
+
+**Why this is pending rather than declined.** No licence found is ordinarily a verified
+state meaning do not ingest, and that is where this row sits today. What separates AOJ from
+the other unlicensed sources in this file is that the rights holder is directly reachable
+and has licensed this data permissively before: the Aizu submissions in IBM Project CodeNet,
+recorded above as verified under CDLA-Permissive-2.0, came out of a collaboration involving
+the same contact named on the AOJ developer site. Asking is a real route here, not a
+formality.
+
+**A permission enquiry was sent on 2026-08-05** covering three points: the terms under which
+API submission metadata may be used as training data for a statistical model in an
+open-source project that may later carry a paid tier; whether the source-code archive files
+the site describes as in preparation will be available and under what terms; and what
+request rate the operator would like clients to hold to, since the published guidance gives
+no figure and this project enforces limits in code rather than by convention. Any reply is
+recorded in this file before any adapter is written.
+
+**Codrona does not depend on this.** Historical Aizu submissions already reach the warehouse
+through Project CodeNet under a verified licence. AOJ would extend that coverage past
+CodeNet's 2021 snapshot and add live problem and test-case data. That is an improvement, not
+a prerequisite, and no Phase 1 work is blocked by it.
+
+**Link-never-host applies here too.** The Resource API serves problem descriptions and
+commentaries, and no licence covers them. Until permission states otherwise, Codrona stores
+and serves no AOJ problem text; problem references link to the judge.
+
+**If permission is refused or never arrives,** this row becomes a decline and Aizu coverage
+remains whatever CodeNet provides. No further action is required for that outcome.
+
+*Not legal advice.*
+
+---
+
 ### Codeforces open dataset (end-2024) — CONSIDERED, DECLINED
 
 | Field | Value |
@@ -377,3 +425,4 @@ ratings. Consistent with the rule that no external platform is load-bearing.
 | 2026-08-04 | zerotrac problem ratings | MIT LICENSE read at source — VERIFIED | Ayush |
 | 2026-08-04 | DeepMind CodeContests | Licences read at source — VERIFIED, partitioned; CodeNet-sourced problems only | Ayush |
 | 2026-08-04 | AtCoder archive (kenkoooo) | Repo MIT covers code only; no data licence. AtCoder ToS revised 2026-06-29 — VERIFIED, DO NOT INGEST | Ayush |
+| 2026-08-05 | Aizu Online Judge | No licence stated on the developer site; permission enquiry sent to the University of Aizu — PENDING | Ayush |
