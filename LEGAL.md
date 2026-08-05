@@ -28,7 +28,7 @@ Rows marked **VERIFY** are blocking. Ingestion code for that source must not mer
 | Commercial use | Permitted |
 | Share-alike | No |
 | Obligations | Include the agreement text when redistributing the data |
-| Attribution | Required in `docs/ATTRIBUTION.md` and the observatory footer |
+| Attribution | Required in [`ATTRIBUTION.md`](https://github.com/codronahq/core/blob/main/ATTRIBUTION.md) and the observatory footer |
 
 **Notes.** CDLA-Permissive-2.0 was written for exactly this case and imposes no
 copyleft on models trained from the data. Submissions were contributed to online
@@ -229,7 +229,7 @@ the only route is their contact form. Never through a third-party mirror.
 | Read by | Ayush Gupta |
 | Commercial use | Permitted by DeepMind's own licences |
 | Share-alike | No |
-| Attribution | DeepMind CC BY 4.0 credit plus the AlphaCode citation (Li et al., Science 378:6624) in `docs/ATTRIBUTION.md` and the observatory footer |
+| Attribution | DeepMind CC BY 4.0 credit plus the AlphaCode citation (Li et al., Science 378:6624) in [`ATTRIBUTION.md`](https://github.com/codronahq/core/blob/main/ATTRIBUTION.md) and the observatory footer |
 | Disposition | **Ingest CodeNet-sourced problems only** (Aizu, AtCoder). All other sources excluded. |
 
 **The licences are not uniform across the dataset, and the row turns on that.** DeepMind
@@ -303,7 +303,7 @@ Pack requires broader statement diversity, the description2code partition may be
 | Commercial use | Permitted |
 | Share-alike | No |
 | Obligations | Retain the copyright notice and permission text |
-| Attribution | `Copyright (c) 2021 Shuxin Chen` in `docs/ATTRIBUTION.md`, the observatory footer, and anywhere a LeetCode difficulty estimate is displayed |
+| Attribution | `Copyright (c) 2021 Shuxin Chen` in [`ATTRIBUTION.md`](https://github.com/codronahq/core/blob/main/ATTRIBUTION.md), the observatory footer, and anywhere a LeetCode difficulty estimate is displayed |
 | Role | LeetCode problem-difficulty mapping. **Not corpus** — contributes zero rows to the submission count. |
 | Disposition | Ingestion permitted under the conditions below |
 
@@ -350,7 +350,7 @@ ratings. Consistent with the rule that no external platform is load-bearing.
 
 ## 3. Standing obligations
 
-1. **Attribution.** Every source requiring credit appears in `docs/ATTRIBUTION.md`,
+1. **Attribution.** Every source requiring credit appears in [`ATTRIBUTION.md`](https://github.com/codronahq/core/blob/main/ATTRIBUTION.md),
    the observatory footer, and any published dataset derived from it.
 2. **No circumvention.** Official APIs and published datasets only. No proxies, no
    stealth automation, no challenge solving, no scraping through bot protection —
