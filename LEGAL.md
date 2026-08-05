@@ -151,20 +151,78 @@ Verify both. Rate limits published by the project are binding.
 
 ---
 
-### DeepMind CodeContests — VERIFY
+### DeepMind CodeContests — VERIFIED (partitioned)
 
 | Field | Value |
 |---|---|
 | Author | Google DeepMind |
-| Licence | **VERIFY** — check both the dataset card and the repo; these have differed |
+| Code licence | Apache-2.0 |
+| Non-code licence | CC BY 4.0 |
+| Licence URL | https://github.com/google-deepmind/code_contests/blob/main/LICENSE |
 | Source URL | https://github.com/google-deepmind/code_contests |
-| Scale | 13,610 problems, multi-judge, labelled |
-| Read date | — |
+| Data location | `gs://dm-code_contests` (~3 GiB, Riegeli `ContestProblem` protos) |
+| Repo state | **Archived 2024-12-06, read-only.** Data remains downloadable. |
+| Scale | 13,610 problems across five judges, with tests and human solutions |
+| Read date | 2026-08-04 |
+| Read by | Ayush Gupta |
+| Commercial use | Permitted by DeepMind's own licences |
+| Share-alike | No |
+| Attribution | DeepMind CC BY 4.0 credit plus the AlphaCode citation (Li et al., Science 378:6624) in `docs/ATTRIBUTION.md` and the observatory footer |
+| Disposition | **Ingest CodeNet-sourced problems only** (Aizu, AtCoder). All other sources excluded. |
 
-**Blocking check.** Confirm whether any component carries a non-commercial or
-research-only restriction. A NC clause anywhere in this corpus excludes it from
-Codrona entirely given §13 commercial intent — it cannot be quarantined to
-"research only" use inside a product that may be sold.
+**The licences are not uniform across the dataset, and the row turns on that.** DeepMind
+licenses its own contribution — the compilation, structure, and generated test cases
+— under Apache-2.0 for code and CC BY 4.0 for everything else. The problems themselves
+come from five judges through three upstream chains, and DeepMind states plainly that use
+of third-party material may be governed by separate terms and that they make no
+representations about rights to use any of it. A CC BY 4.0 grant over a redistributed work
+covers the compilation, not the upstream rights.
+
+**Partition, by the `source` field on each `ContestProblem`.** The repository ships
+`print_names_and_sources` precisely because this field is queryable, so the filter is a
+first-class operation and not a heuristic.
+
+| Upstream | Judges | Stated licence | Decision |
+|---|---|---|---|
+| CodeNet | Aizu, AtCoder | CDLA-Permissive-2.0 (see the CodeNet row above) | **Ingest** |
+| Codeforces (direct) | Codeforces | None stated | **Exclude** |
+| description2code | CodeChef, HackerEarth, some Codeforces | MIT, copyright unspecified | **Exclude** |
+
+**Why Codeforces material is excluded here.** The Codeforces API row commits Codrona to
+link-never-host for Codeforces statements, and records that Codrona holds and redistributes
+no Codeforces user source code. That commitment does not depend on which party we obtain
+the material from. Ingesting Codeforces-sourced problems or solutions through this dataset
+would falsify a commitment made elsewhere in this same file.
+
+**Why description2code material is excluded.** Not a licence failure — an absence of
+purpose. Codrona integrates Codeforces, LeetCode and AtCoder; no adapter, profile, ladder
+or readiness mapping consumes CodeChef or HackerEarth content. The CodeChef material cannot
+serve the India observatory, which requires user and submission data this dataset does not
+carry. The HackerEarth material cannot serve OA readiness, which derives from assessment
+shapes rather than a public contest archive, and the underlying scrape is roughly 2016-era.
+Ingesting unused data on the longest provenance chain in this file is exposure without
+benefit.
+
+**Note on DeepMind's CodeNet attribution.** Their README records CodeNet as Apache-2.0.
+That is the tooling licence; the dataset is CDLA-Permissive-2.0. Codrona relies on its own
+verified CodeNet row, not on this restatement. The distinction matters because CodeNet's
+licence is the sole basis on which the ingested partition rests.
+
+**What the partition provides.** Statements, paired test cases, and both correct and
+incorrect human solutions for Aizu and AtCoder problems under a licence verified at source.
+This supplies content-based problem features for the cold-start gate on unseen problems,
+and gives the execution sandbox real test cases for problems with no live judge
+integration.
+
+**Archived-upstream posture.** The repository is read-only and will receive no corrections.
+Snapshot at ingest, record the download date, and treat the corpus as frozen. Absence of an
+AtCoder problem here is expected, not a data-quality failure.
+
+**Re-open condition.** If a CodeChef or HackerEarth adapter is ever built, or the Aptitude
+Pack requires broader statement diversity, the description2code partition may be revisited
+— with a stated purpose recorded here, never silently.
+
+*Not legal advice.*
 
 ---
 
@@ -255,3 +313,4 @@ ratings. Consistent with the rule that no external platform is load-bearing.
 | 2026-08-04 | Codeforces API | Terms and API docs read at source — VERIFIED; rate limit corrected to 1 req / 2s | Ayush |
 | 2026-08-04 | Codeforces end-2024 bulk release (denk) | CC BY 4.0 read at source — CONSIDERED, DECLINED; reproducible via official API | Ayush |
 | 2026-08-04 | zerotrac problem ratings | MIT LICENSE read at source — VERIFIED | Ayush |
+| 2026-08-04 | DeepMind CodeContests | Licences read at source — VERIFIED, partitioned; CodeNet-sourced problems only | Ayush |
