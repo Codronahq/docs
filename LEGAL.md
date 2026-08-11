@@ -25,10 +25,12 @@ Rows marked **VERIFY** are blocking. Ingestion code for that source must not mer
 | Code repo | https://github.com/IBM/Project_CodeNet |
 | Scale | ~13.9M submissions, 4,053 problems, 55 languages |
 | Read date | 2026-08-03 |
+| Read by | Ayush Gupta |
 | Commercial use | Permitted |
 | Share-alike | No |
 | Obligations | Include the agreement text when redistributing the data |
 | Attribution | Required in [`ATTRIBUTION.md`](https://github.com/codronahq/core/blob/main/ATTRIBUTION.md) and the observatory footer |
+| Ingested | 2026-08-10 — `metadata/` and `problem_descriptions/` only. The 13.9M-file `data/` tree of submitted source is deliberately not extracted; no Phase 1 feature reads it. Row counts live in codrona.md §6, not here. |
 
 **Notes.** CDLA-Permissive-2.0 was written for exactly this case and imposes no
 copyleft on models trained from the data. Submissions were contributed to online
@@ -149,6 +151,7 @@ revisited — but the sublicensing question must be resolved first, not assumed 
 | Read by | Ayush Gupta |
 | Role | Primary live integration **and** the Codeforces bulk corpus |
 | Disposition | Ingestion permitted under the operating rules below |
+| Ingested | 2026-08-06 to 2026-08-09 — `user.ratedList` then paginated `user.status` across the full active rated cohort, at the documented limit. Verdict-level metadata only: the API returns no submitted source, so none was stored. Row counts live in codrona.md §6, not here. |
 
 **Rate limit correction.** The documented limit is one call per two seconds. The
 figure of roughly five requests per second, carried in earlier drafts of this file
@@ -270,7 +273,8 @@ the only route is their contact form. Never through a third-party mirror.
 | Non-code licence | CC BY 4.0 |
 | Licence URL | https://github.com/google-deepmind/code_contests/blob/main/LICENSE |
 | Source URL | https://github.com/google-deepmind/code_contests |
-| Data location | `gs://dm-code_contests` (~3 GiB, Riegeli `ContestProblem` protos) |
+| Data location | https://huggingface.co/datasets/deepmind/code_contests — DeepMind's own organisation, native Parquet. The `gs://dm-code_contests` Riegeli release is the same data under the same licence from the same rights holder; the HuggingFace channel was taken because the stack already reads Parquet and it adds no new toolchain. The test is authority, not convenience: this is the rights holder's own account, not a third-party mirror. |
+| Pinned revision | `802411c3010cb00d1b05bad57ca77365a3c699d6` — recorded in the on-disk filename, in a column on every row, and in a test. |
 | Repo state | **Archived 2024-12-06, read-only.** Data remains downloadable. |
 | Scale | 13,610 problems across five judges, with tests and human solutions |
 | Read date | 2026-08-04 |
@@ -279,6 +283,7 @@ the only route is their contact form. Never through a third-party mirror.
 | Share-alike | No |
 | Attribution | DeepMind CC BY 4.0 credit plus the AlphaCode citation (Li et al., Science 378:6624) in [`ATTRIBUTION.md`](https://github.com/codronahq/core/blob/main/ATTRIBUTION.md) and the observatory footer |
 | Disposition | **Ingest CodeNet-sourced problems only** (Aizu, AtCoder). All other sources excluded. |
+| Ingested | 2026-08-11 — statements and problem metadata for the CodeNet-sourced partition only. Test cases and human solutions stay upstream at the pinned revision until a phase reads them. |
 
 **The licences are not uniform across the dataset, and the row turns on that.** DeepMind
 licenses its own contribution — the compilation, structure, and generated test cases
@@ -297,6 +302,8 @@ first-class operation and not a heuristic.
 | CodeNet | Aizu, AtCoder | CDLA-Permissive-2.0 (see the CodeNet row above) | **Ingest** |
 | Codeforces (direct) | Codeforces | None stated | **Exclude** |
 | description2code | CodeChef, HackerEarth, some Codeforces | MIT, copyright unspecified | **Exclude** |
+
+**The `source` enum was measured, not read from the proto.** Every value was counted across the whole dataset before the filter was written, because the enum recalled from memory put AtCoder and Aizu on the wrong integers. The count also produced a property that settles the partition without trusting the enum at all: sources 5 (AtCoder) and 6 (Aizu) carry a CodeNet `p#####` problem id on 100% of rows, while sources 1, 2 and 3 carry one on 0%. A licence boundary this file depends on is therefore objectively checkable rather than asserted.
 
 **Why Codeforces material is excluded here.** The Codeforces API row commits Codrona to
 link-never-host for Codeforces statements, and records that Codrona holds and redistributes
@@ -346,6 +353,7 @@ Pack requires broader statement diversity, the description2code partition may be
 | Source URL | https://github.com/zerotrac/leetcode_problem_rating |
 | Data files | `ratings.txt` (raw, rating-descending), `data.json` (structured) |
 | Repo state | Active — last push 2026-08-01, not archived |
+| Pinned revision | `881a239306ce7a339e32e7825cdb9c00fead00f1` — upstream state of 2026-08-01, recorded in the on-disk filenames, in a column on every row, and in a test asserting the record count. |
 | Read date | 2026-08-04 |
 | Read by | Ayush Gupta |
 | Commercial use | Permitted |
@@ -354,6 +362,7 @@ Pack requires broader statement diversity, the description2code partition may be
 | Attribution | `Copyright (c) 2021 Shuxin Chen` in [`ATTRIBUTION.md`](https://github.com/codronahq/core/blob/main/ATTRIBUTION.md), the observatory footer, and anywhere a LeetCode difficulty estimate is displayed |
 | Role | LeetCode problem-difficulty mapping. **Not corpus** — contributes zero rows to the submission count. |
 | Disposition | Ingestion permitted under the conditions below |
+| Ingested | 2026-08-11 — `ratings.txt` and `data.json` at the pinned revision, together with the upstream `LICENSE` file, so the copyright notice this row obliges us to retain travels with the snapshot. |
 
 **Why this clears where the Codeforces bulk release did not.** The ratings are not
 republished platform records. They are the author's own estimates, computed with an
@@ -426,3 +435,8 @@ ratings. Consistent with the rule that no external platform is load-bearing.
 | 2026-08-04 | DeepMind CodeContests | Licences read at source — VERIFIED, partitioned; CodeNet-sourced problems only | Ayush |
 | 2026-08-04 | AtCoder archive (kenkoooo) | Repo MIT covers code only; no data licence. AtCoder ToS revised 2026-06-29 — VERIFIED, DO NOT INGEST | Ayush |
 | 2026-08-05 | Aizu Online Judge | No licence stated on the developer site; permission enquiry sent to the University of Aizu — PENDING | Ayush |
+| 2026-08-06 | Codeforces API | Bulk collection started over the active rated cohort at 1 req / 2 s | Ayush |
+| 2026-08-09 | Codeforces API | Collection complete — INGESTED; verdict-level metadata only, no source code | Ayush |
+| 2026-08-10 | IBM CodeNet | Archive downloaded and integrity-verified — INGESTED; metadata layer only | Ayush |
+| 2026-08-11 | zerotrac problem ratings | Snapshotted at pinned revision `881a2393` — INGESTED | Ayush |
+| 2026-08-11 | DeepMind CodeContests | CodeNet-sourced partition taken from DeepMind's own HuggingFace dataset at pinned revision `802411c3` — INGESTED | Ayush |
