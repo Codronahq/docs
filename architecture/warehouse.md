@@ -34,6 +34,10 @@ models/
 Staging models are views. Marts are tables. Intermediate is ephemeral except where
 a materialisation measurably helps.
 
+This document describes the intended shape and names models that are planned as
+well as models that exist. It is not the inventory: `dbt ls --resource-type model`
+in `lens` is, and a list repeated here would drift from it within a phase.
+
 ## 3. Staging
 
 ```
@@ -123,19 +127,29 @@ solved. Censored rows are data, not missing values — the survival model needs 
 
 ## 7. Observatory marts
 
-Feed the public "State of Competitive Programming — India" dashboards. Aggregated
-only; no individual user is identifiable in a published mart.
+Five aggregates feed the public "State of Competitive Programming" surfaces.
 
 | Model | Content |
 |---|---|
-| `obs_topic_trends` | Tag frequency and solve rates by quarter |
-| `obs_rating_distribution` | Rating histograms over time; inflation analysis |
-| `obs_difficulty_drift` | Official rating vs empirical solve rate, by cohort |
-| `obs_language_share` | Language usage trends |
-| `obs_india_vs_world` | Regional comparison where handles carry country metadata |
+| `obs_rating_distribution` | Cohort users per rating band, with share of cohort |
+| `obs_activity_by_year` | Submissions, active users and participation rate per year |
+| `obs_tag_landscape` | Per-tag problem counts, Codeforces ratings, population-wide solve counts |
+| `obs_country_participation` | Cohort users by self-declared country, undeclared emitted as its own row |
+| `obs_organization_participation` | Cohort users by declared organisation, free text and unnormalised |
 
-`obs_college_readiness` is **excluded from the public set**. It is institutional and
-belongs to the private open-core layer under ADR-0001.
+Two figures in this set are not what an earlier draft of this document promised, and the difference is worth stating. `obs_rating_distribution` is a single-snapshot distribution, not a histogram over time: `user.ratedList` returns today's rating only, so rating inflation cannot be measured until a rating-history source exists, which is Phase 2 work. And the activity series is left-truncated by construction — the cohort was collected with `activeOnly=true`, so the final year reads as fully active because it cannot read otherwise. The volume curve is the cohort's registration curve, not the growth of competitive programming. Participation rate is the figure that survives, and it is flat.
+
+**Aggregation is not anonymisation, so two guards enforce the boundary rather than assuming it.** `assert_observatory_holds_no_identities` reads `information_schema`, so an identifying column fails when it is *added* rather than when someone notices what a chart renders. `assert_observatory_no_small_cells` enforces a minimum cell size of five people, recomputing the count from the output instead of trusting either model's own flag.
+
+The two person-counting tables suppress differently, and the asymmetry was measured rather than assumed. Organisations collapse below the threshold into a single `(below reporting threshold)` row carrying only a count. Countries keep their name and count and publish no rating statistics, because 64 of 158 country rows hold fewer than five users and the smallest holds one — where a mean equals a max equals that person's exact current rating, beside a country that `user.ratedList` is filterable by. An organisation name at two users identifies a cohort; a country name at one user identifies a country, and the coverage figure is information a reader is owed.
+
+### The export
+
+The aggregates live in a DuckDB file outside the repository, so nothing off the maintainer's machine can read them. `codrona_lens.observatory.export` serialises them to committed JSON under `lens/exports/observatory/`, which is the Tier 0 answer from the sustainability architecture: a static file cannot pause and puts no service on the hot path.
+
+The published column set is an allowlist, and a warehouse column absent from it aborts the export rather than being dropped quietly — quiet dropping is how a new identifying field would reach a chart with nobody deciding. Caveats are read from the dbt schema rather than retyped, so a figure cannot ship without the warning that makes it honest. The output carries no timestamp, so regenerating an unchanged warehouse produces identical bytes and any diff means something moved. Two separate gates cover it: a test that reads only the written files, and a pre-commit hook that regenerates and byte-compares. They are non-overlapping by design — a corrupted count passed the first and was caught only by the second.
+
+`obs_topic_trends`, `obs_difficulty_drift`, `obs_language_share` and `obs_india_vs_world` were named in the Phase 0 design and are not built. `obs_college_readiness` is **excluded from the public set**: it is institutional and belongs to the private open-core layer under ADR-0001.
 
 ## 8. Tests
 
