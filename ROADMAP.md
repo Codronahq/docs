@@ -25,19 +25,20 @@ Progress: **Phase 0 in progress.**
 
 ## Phase 1 — Data spine (weeks 2–3)
 
-- [ ] Adapter interface and verdict mapping table
-- [ ] CodeNet adapter — metadata ingest
-- [ ] Codeforces adapter — API, token-bucket rate limiting, resumable cursor
-- [ ] AtCoder adapter (blocked on LEGAL verification)
-- [ ] Lake layout: raw → staged, idempotent partition replacement
-- [ ] PySpark normalisation to canonical schema
-- [ ] dbt project: staging, intermediate, marts
-- [ ] SCD-2 snapshots on `dim_problem` and `dim_user`
-- [ ] Custom tests: validity overlap, single-current, as-of correctness
+- [x] Verdict mapping and evidence policy, measured over the full corpus rather than taken from the API docs
+- [x] CodeNet adapter — metadata ingest, 13,916,868 rows
+- [x] Codeforces adapter — API, single global min-interval limiter at the documented 1 req / 2 s, resumable checkpointed cursor
+- [x] Codeforces problemset snapshot — authoritative tags and population-level `solvedCount`
+- [x] AtCoder — resolved, not blocked: DO NOT INGEST, recorded in `LEGAL.md` with the 2026-06-29 ToS revision as the decisive fact
+- [x] Lake layout: raw → silver, idempotent partition replacement, with a files-on-disk versus files-read guard
+- [x] PySpark normalisation to canonical schema
+- [x] dbt project: staging and marts (`intermediate` deliberately empty — nothing yet needs a layer between)
+- [x] SCD-2 shaped `dim_problem` and `dim_user`, built in SQL rather than via dbt snapshots; degenerate until a second collection lands
+- [x] Custom tests: validity overlap, single-current, as-of correctness — plus corpus-coverage and key-ambiguity guards
+- [x] Full corpus straight to 30M, no 5M staging step — the sample cutover was skipped because the guards that would have caught a sampling defect were built first
 - [ ] Airflow DAGs — crawl, stage, dbt, publish
 - [ ] Databricks EDA notebook over the full corpus
-- [ ] 5M sample → 30M full cutover, with the quality report
-- [ ] G8 enforced in CI
+- [ ] G8 enforced in CI — blocked by design: CI has no corpus, so `dbt build` cannot run there. `dbt parse` gates model and YAML validity in CI; the 121 data tests run locally before every push. Closing this needs either seed fixtures or the orchestrated run Airflow brings
 - [ ] First observatory charts
 
 ## Phase 2 — The science (weeks 4–6)
