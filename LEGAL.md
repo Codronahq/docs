@@ -53,6 +53,8 @@ Derived artefacts (features, fitted parameters) are not encumbered.
 | Read date | 2026-08-04 |
 | Read by | Ayush Gupta |
 | Permission requested | 2026-08-05, by email, awaiting reply |
+| Follow-up due | 2026-09-05, one polite reminder, once only |
+| Decision date | 2026-10-05, after which this row becomes a decline |
 | Disposition | **Do not ingest until written permission is received.** Not required for Phase 1. |
 
 **Why this is pending rather than declined.** No licence found is ordinarily a verified
@@ -79,6 +81,10 @@ a prerequisite, and no Phase 1 work is blocked by it.
 **Link-never-host applies here too.** The Resource API serves problem descriptions and
 commentaries, and no licence covers them. Until permission states otherwise, Codrona stores
 and serves no AOJ problem text; problem references link to the judge.
+
+**A pending row needs an expiry, or it becomes a permanent one.** No reply after a week means little: the enquiry was unsolicited, Obon falls 13-16 August and the Japanese academic summer break runs through September. So the wait is dated rather than open. One follow-up on 2026-09-05 - one is professional, two is pestering - and if 2026-10-05 passes in silence the disposition changes from PENDING to CONSIDERED, DECLINED without further deliberation. Nothing waits on this: no Phase 1, 2 or 3 work depends on AOJ.
+
+**What silence actually costs.** AIZU history stops at CodeNet's 2020-10-01 snapshot and ages from there; there is no live AOJ integration, so no user can connect an AOJ handle; and the test-case and source-code archives stay out of reach. What survives is most of the value: 1,955,837 AIZU submissions across 2,534 problems under a verified licence, plus statements and generated tests for the AIZU partition through CodeContests. AOJ supplies no difficulty labels in any case. The corpus headline never counted it. The real consequence is a product one for Phase 5 rather than a data one: with AtCoder bulk-excluded and AOJ declined, Codrona would carry no live Japanese judge, and cross-judge profiles would be Codeforces plus LeetCode, with AtCoder limited to per-user reads of a self-connected handle.
 
 **If permission is refused or never arrives,** this row becomes a decline and Aizu coverage
 remains whatever CodeNet provides. No further action is required for that outcome.
