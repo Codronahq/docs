@@ -18,7 +18,7 @@ Progress: **Phase 0 in progress.**
 - [x] Turborepo + pnpm workspace in `core`
 - [x] `@codrona/design-tokens` with the rating ladder
 - [x] ADR and RFC templates, CODEOWNERS, issue and PR templates
-- [x] CI skeleton: lint, type-check, test on every repo
+- [x] CI on every repo that has something to check: lint, type-check and tests in `core`, `mind` and `lens`; repository hygiene (YAML validity, internal link resolution) in `grid`, `docs` and `.github`. `private` runs no workflow by design — it holds weights and the golden eval set, not code.
 - [x] Branch protection and conventional commits
 - [x] `docs` published with architecture, warehouse, ingestion, eval gates
 - [x] Organisation profile README
