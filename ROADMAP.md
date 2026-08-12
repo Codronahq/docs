@@ -93,7 +93,8 @@ Progress: **Phase 0 complete. Phase 1 in progress.**
 - [ ] GA4 and PostHog, verified at the provider
 - [ ] Live A/B: bandit vs ladder order, with CUPED
 - [ ] Postgres performance documented, before and after
-- [ ] Status page live
+- [ ] Status page live — carried over from Phase 0, where it was specified and never built
+- [ ] Five-minute GitHub Actions cron pinging every public endpoint — the other half of the §7 always-live guarantee, also carried over from Phase 0
 - [ ] **Rename `codronahq` → `codrona` and sweep every surface**
 - [ ] Public launch
 

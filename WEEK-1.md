@@ -1,9 +1,13 @@
-# Week 1 — the literal checklist
+# Week 1 — the Phase 0 checklist (closed 12 August 2026)
 
 Phase 0. Roughly 15–20 hours. Everything here is real work; nothing is placeholder.
 
-At the end of week 1 the organisation is public, licensed, documented, and CI-gated,
-and Phase 1 can start without any setup detour.
+Historical record, not a live tracker. Live tracking is `ROADMAP.md`. Every box below
+was re-verified against its artefact on 12 August 2026 rather than ticked from memory:
+licence files fetched from each repository, branch protection and secret scanning read
+back from the GitHub API, the deployment and the organisation profile fetched logged
+out, and the Day 7 number audit actually run. Two items were still open at close and
+were moved to `ROADMAP.md` rather than left here; they are named under Day 6.
 
 ---
 
@@ -30,30 +34,30 @@ remotes are unaffected.
 
 The two genuinely blocking artefacts. Do these first; everything else can slip.
 
-- [ ] Copy `docs/` files into `~/code/codrona-docs/`
-- [ ] Fetch the AGPL text (too long to include here):
+- [x] Copy `docs/` files into `~/code/codrona-docs/`
+- [x] Fetch the AGPL text (too long to include here):
       `curl -o LICENSE https://www.gnu.org/licenses/agpl-3.0.txt`
       into each of `mind`, `grid`, `lens`, `core`
-- [ ] `docs/LICENSE` gets CC-BY-4.0 instead — it is prose, not software
-- [ ] Confirm `core/packages/design-tokens/LICENSE` is the MIT text (included)
-- [ ] Commit ADR-0001 and LEGAL.md to `docs`
-- [ ] **Verify the four VERIFY rows in LEGAL.md.** Open each source, read the actual
+- [x] `docs/LICENSE` gets CC-BY-4.0 instead — it is prose, not software
+- [x] Confirm `core/packages/design-tokens/LICENSE` is the MIT text (included)
+- [x] Commit ADR-0001 and LEGAL.md to `docs`
+- [x] **Verify the four VERIFY rows in LEGAL.md.** Open each source, read the actual
       licence, record it with today's date. If a source has no stated licence, write
       that down — "no licence found" is a valid verified state and it means do not
       ingest. This gates all of Phase 1.
-- [ ] Push `docs`; confirm it renders on github.com logged out
+- [x] Push `docs`; confirm it renders on github.com logged out
 
 ## Day 2 — organisation surface
 
-- [ ] Copy `dotgithub/` contents into `~/code/codrona-dotgithub/`
+- [x] Copy `dotgithub/` contents into `~/code/codrona-dotgithub/`
       (note: `profile/README.md` is what renders on the org page)
-- [ ] Push, then open `https://github.com/codronahq` **in a private window** and
+- [x] Push, then open `https://github.com/codronahq` **in a private window** and
       confirm the profile README renders. Owner view is not proof.
-- [ ] Copy `private/` files into `~/code/codrona-private/`, push, confirm it is
+- [x] Copy `private/` files into `~/code/codrona-private/`, push, confirm it is
       private from a logged-out check (404 is the correct result)
-- [ ] Branch protection on `main` for all six public repos:
+- [x] Branch protection on `main` for all six public repos:
       require PR, require status checks, no force push
-- [ ] Enable Dependabot alerts and secret scanning per repo
+- [x] Enable Dependabot alerts and secret scanning per repo
 
 ## Day 3 — CLA Assistant
 
@@ -110,40 +114,42 @@ pushed branch with zero commits.
 
 ## Day 6 — deployment and observability
 
-- [ ] Import `codrona-core` into Vercel, root directory `apps/web`
-- [ ] Set any `NEXT_PUBLIC_*` variables in the Vercel project for **both** Production
+- [x] Import `codrona-core` into Vercel, root directory `apps/web`
+- [x] Set any `NEXT_PUBLIC_*` variables in the Vercel project for **both** Production
       and Preview **before** the first deploy — they are baked at build time and
       `.env.local` never reaches Vercel
-- [ ] Deploy; note the assigned `*.vercel.app` URL
-- [ ] **Open it in a private window.** Logged-out verification is the standard.
-- [ ] Record the URL as the canonical Codrona address until a domain exists
-- [ ] Set up a status page (UptimeRobot or Better Stack free tier) pointing at it
-- [ ] GitHub Actions cron pinging every 5 minutes
+- [x] Deploy; note the assigned `*.vercel.app` URL
+- [x] **Open it in a private window.** Logged-out verification is the standard.
+- [x] Record the URL as the canonical Codrona address until a domain exists
+
+Two items from this day were not done by the close of Phase 0 and were moved to
+`ROADMAP.md`: a public status page, and the five-minute GitHub Actions cron that keeps
+warm-able services warm. Both are §7 always-live requirements, and at close neither had
+left an artefact anywhere in the organisation — no monitor URL, no `schedule:` trigger.
 
 ## Day 7 — audit and close
 
-- [ ] Tick every completed box in `docs/ROADMAP.md` and push
-- [ ] Confirm `origin` is at HEAD for all seven repos
-- [ ] Confirm CI green on the pushed commit of each repo with a workflow
-- [ ] Grep the public repos for any number not traceable to Canonical Numbers.
+- [x] Tick every completed box in `docs/ROADMAP.md` and push
+- [x] Confirm `origin` is at HEAD for all seven repos
+- [x] Confirm CI green on the pushed commit of each repo with a workflow
+- [x] Grep the public repos for any number not traceable to Canonical Numbers.
       Label enums and `__pycache__` are false positives, not stale claims.
-- [ ] Confirm no PROVISIONAL threshold has leaked into a README or the org profile
-- [ ] Apply the always-live test to the deployed page: untouched eight months, opened
+- [x] Confirm no PROVISIONAL threshold has leaked into a README or the org profile
+- [x] Apply the always-live test to the deployed page: untouched eight months, opened
       on hotel wifi — working in three seconds? If not, re-architect now rather than
       at launch.
-- [ ] **List the gaps explicitly before declaring Phase 0 complete.** Anything not
+- [x] **List the gaps explicitly before declaring Phase 0 complete.** Anything not
       ticked is a gap, not a rounding error.
 
 ---
 
 ## Carried into week 1 from the ritual
 
-- [ ] **PyPI `codrona`** — rate-limited on 3 Aug. Retry once; do not loop.
-      `cd /tmp/codrona-pypi-claim && source .venv/bin/activate && twine upload dist/*`
-- [ ] Calendar reminder confirmed for **1 Nov 2026: rename codronahq → codrona**
+- [x] **PyPI `codrona`** — claimed 4 Aug 2026 as a placeholder `0.0.0`; the real SDK ships from `core` in Phase 6
+- [x] Calendar reminder confirmed for **1 Nov 2026: rename codronahq → codrona**
 
 ## Deliberately not in week 1
 
-Domains (deferred until there is revenue). The `codrona.dev/u/<handle>` profile URLs
-in the master context are aspirational until then and the doc needs amending to say
-so.
+Domains (deferred until there is revenue). The master context was amended accordingly:
+the canonical host is `codrona.vercel.app`, and the `codrona.dev/u/<handle>` URLs are
+aspirational until a domain is bought.
