@@ -152,11 +152,13 @@ Spike profile models a contest start: near-idle to peak in under 60 seconds.
 
 | Metric | Target | Status |
 |---|---|---|
-| dbt tests at `error` severity | 100% pass | PROVISIONAL |
-| Orphan rate, submissions → problems | ≤ 0.5% | PROVISIONAL |
-| SCD-2 invariants (no overlap, one current, as-of correctness) | 100% pass | PROVISIONAL |
+| dbt tests at `error` severity | 100% pass | ENFORCED |
+| Orphan rate, submissions → problems | ≤ 0.5% | ENFORCED |
+| SCD-2 invariants (no overlap, one current, as-of correctness) | 100% pass | ENFORCED |
 
-**Runs:** every DAG execution, before `publish_marts`.
+**Runs:** every push, in CI. `dbt build` executes against synthetic fixtures built by `scripts/make_ci_fixtures.py` in `lens`, so a failing test blocks rather than being noticed later on a laptop. It will additionally run before `publish_marts` once the Airflow DAG exists; that is an extra trigger, not the thing that makes this gate real.
+
+Three qualifications, so the status is not read as more than it is. The orphan rate is enforced at **zero** rather than at 0.5% — `relationships` tests plus `assert_dim_problem_covers_corpus` admit no orphan at all, which is stricter than the target and is why the target itself has never been exercised. The SCD-2 invariants are **vacuously true today**, since one collection snapshot means one version per key; they were written before the second snapshot deliberately, and each was proven to fail against an injected defect rather than merely observed to pass. And four tests pin counts of the real world, carry the `real_data` tag and are excluded in CI, so CI gates 117 of 121.
 
 ---
 
