@@ -5,7 +5,7 @@ Eight phases. Every phase ends with something real.
 **Done means two things:** the box is ticked **and** the gate in
 `quality/eval-gates.md` is passing. A ticked box with a failing gate is not done.
 
-Progress: **Phase 0 complete. Phase 1 in progress.**
+Progress: **Phases 0 and 1 complete. Phase 2 next.**
 
 ---
 
