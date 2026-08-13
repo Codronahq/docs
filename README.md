@@ -9,6 +9,7 @@ Architecture, decisions, and quality standards for Codrona.
 | Warehouse schema | `architecture/warehouse.md` |
 | Design language | `design/design-language.md` |
 | Eval gates | `quality/eval-gates.md` |
+| Div. 1 / Div. 2 twins | `analysis/div1-div2-twins.md` |
 | Data licensing | `LEGAL.md` |
 | Roadmap and checklist | `ROADMAP.md` |
 | Decisions | `adr/` |
