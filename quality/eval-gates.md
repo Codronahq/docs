@@ -174,6 +174,52 @@ Three qualifications, so the status is not read as more than it is. The orphan r
 
 ---
 
+## G10 — Host-dependent derived values
+
+**Failure guarded:** a published figure derived from the machine rather than from the
+data — the session time zone, `$HOME`, the locale — differs between the laptop that
+publishes it and the container that recomputes it, while every row count stays identical.
+
+| Metric | Target | Status |
+|---|---|---|
+| Engines whose session zone is pinned *and asserted* | 3 of 3: dbt, Spark, DuckDB | ENFORCED |
+| DuckDB connections opened outside the pinned helper | 0 | ENFORCED |
+| Warehouse path resolved from the environment rather than `$HOME` | required | ENFORCED |
+
+Separate from G8 rather than a line inside it, because G8 gates what the warehouse
+contains and this gates the processes that read and write it. `dim_user.registered_at` is
+TIMESTAMP WITH TIME ZONE, so `year()` resolves against the session zone: 2020 read 814
+registrations under UTC against 812 under Asia/Kolkata, the observatory's cumulative
+`registered_by_then` carried the shift into every later year, and G8 stayed green
+throughout because no count changed — only which year each count was filed under. The
+third-engine reproduction on Databricks did not catch it either, since the two columns it
+moved are the two that comparison deliberately excludes. A container found it and a laptop
+never could, which is the general point: a second machine is a test.
+
+The rules are written to be capable of failing, which is the part that is easy to get
+wrong. Two tests already named UTC and neither could have caught this: each configured UTC
+in its own fixture and neither called the constructor it claimed to gate, so both asserted
+a property of Spark rather than of this code and would have passed unchanged with the pin
+deleted. Every rule here first poisons the live session or connection with a non-UTC zone,
+then invokes the production path, then asserts the poison is gone — which fails on a CI
+runner that is already UTC exactly as it fails on a laptop that is not. Each was shown to
+fail against its own mutation before being trusted to pass, and the boundary value is
+itself asserted, since a value that stopped straddling the year would quietly make every
+other rule vacuous.
+
+One rule is structural rather than behavioural: nothing outside the connection helper may
+open DuckDB directly. The other rules gate the helper and none of them gates whether
+anything uses it, so a new caller would be unpinned and unnoticed. That rule found three
+connections on the day it was written.
+
+The boundary is the session time zone and the warehouse path. Locale-dependent collation,
+filesystem ordering, and any other value derived from the environment are **not** covered.
+Naming what a gate does not cover is what separates it from a claim.
+
+**Runs:** every push, in CI, as part of the test suite in `lens`.
+
+---
+
 ## Release gate
 
 A release requires, together:
@@ -181,7 +227,7 @@ A release requires, together:
 1. G1, G2, G3 at target on the golden set
 2. G4 leakage at zero, with no red-team regression under G5
 3. G7 green against staging
-4. G8 fully green on the publishing run
+4. G8 and G10 green on the publishing run
 5. Every threshold cited in any public artefact traced to Canonical Numbers
 
 Any one failing blocks the release. There is no override; the correct response is to
