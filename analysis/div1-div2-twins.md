@@ -64,8 +64,14 @@ offset showing up in the data. A string coincidence does not produce that shape.
 
 ## The finding that settles it
 
-**At a contest gap of 1, no name-matched pair disagrees on rating.** 1,174 agree,
-9 have one side unrated, and zero differ.
+**At a contest gap of 1, no name-matched pair disagrees on rating.** Of 1,183
+name-matched pairs at gap 1: 1,174 agree, 9 have **neither** side rated, and zero
+differ. Not one pair has exactly one side rated.
+
+That distinction was recorded wrongly here until 15 Aug 2026 and matters to the
+model rather than to the prose. A pair with one side rated carries a corroborating
+signal; a pair with neither carries a name match at gap 1 and nothing else. The nine
+are the *weakest* members of the set, not a partially-corroborated middle.
 
 Across all gaps, 290 pairs share a name and carry different ratings — and every
 one of them sits at a gap other than 1. So rating disagreement is not evidence
@@ -87,9 +93,14 @@ A candidate twin requires all three:
 
 1. The two contest ids differ by exactly one.
 2. The problem names are equal.
-3. The ratings agree, or exactly one side is unrated.
+3. The ratings agree, or neither side is rated. No pair at gap 1 has exactly one side rated, so that case is vacuous rather than admitted.
 
-**Yield: 1,174 problems carrying 523,813 submissions.** Those are the responses
+**Yield: 1,174 rating-agreeing problems carrying 523,813 submissions, or 1,183
+including the nine unrated-on-both-sides pairs, which carry 523,997 between them.**
+The three-part rule as written
+admits all 1,183, which is what the reproduction query at the foot of this document
+returns; the 1,174 figure names the rating-agreeing subset alone. Quote whichever is
+meant and say which. Those are the responses
 that would otherwise be split across two keys.
 
 Explicitly excluded, and each for a stated reason rather than by omission:
@@ -97,7 +108,7 @@ Explicitly excluded, and each for a stated reason rather than by omission:
 - Matches at any contest gap other than 1 — the rating disagreements live entirely here, so these are name collisions rather than twins.
 - Matches resolved only by tags — superseded, and the tags route left 156 ambiguous against 11 for rating.
 - Gym and acmsguru — out of the archive's scope, and acmsguru carries no contest id to compare.
-- The 9 pairs where one side is unrated pass the rule but should be handled explicitly by the model rather than silently, since nothing corroborates them.
+- The 9 pairs where neither side is rated pass the rule but should be handled explicitly by the model rather than silently, since nothing corroborates them at all — no rating on either side means the name-and-gap match is the whole of the evidence. They carry **184 submissions between them, every one an evidence row**, averaging 20 per problem: obscure enough that neither side ever earned a rating, which is the same fact seen from the other side. 523,997 − 523,813 = 184 and 520,639 − 520,455 = 184, so the two yields reconcile against each other rather than each standing alone.
 
 ## Why the warehouse is not changed
 
