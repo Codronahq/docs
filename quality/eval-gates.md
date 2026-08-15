@@ -10,6 +10,20 @@ recorded in the Canonical Numbers block. Until then a threshold's status is
 
 A gate is only real when it runs in CI and can fail the build.
 
+**A statistical threshold without its baseline is not a gate.** G1, G2 and G3 measure
+model quality, and for those an absolute number means nothing on its own: the question
+is always what a trivial model already scores. Every statistical target below is
+therefore expressed as a required improvement over a stated baseline — the constant
+predictor, or the best a model can do knowing only one crude fact — and the baseline
+travels with the target wherever it is quoted. All three were absolute thresholds until
+15 Aug 2026 and all three were passable by a trivial model at the time; the measurements
+are recorded in each gate below.
+
+This rule applies to statistical gates only. G4 through G9 are engineering budgets —
+latency, attack success rate, freshness lag — where the null model is a broken service
+rather than a constant predictor, and an absolute number is the correct form. G8 and
+G10 are structural and already state their own coverage boundaries.
+
 ---
 
 ## Status legend
@@ -29,9 +43,31 @@ wrong difficulty and the ladder stops adapting.
 
 | Metric | Target | Status |
 |---|---|---|
-| Brier score, held-out submissions | ≤ 0.18 | PROVISIONAL |
+| Brier reduction vs that population's own constant-predictor baseline | ≥ 25% | PROVISIONAL |
+| Brier reported per population, never pooled across judges | required | PROVISIONAL |
+| The baseline published beside every Brier figure | required | PROVISIONAL |
 | Expected calibration error (10 bins) | ≤ 0.05 | PROVISIONAL |
 | Reliability curve | published artefact, every release | PROVISIONAL |
+
+**Why a reduction rather than an absolute number.** The former target was Brier ≤ 0.18.
+Measured against the constant-predictor baseline of each population:
+
+| Population | Baseline Brier | Reduction 0.18 demanded |
+|---|---|---|
+| Codeforces | 0.243562 | 26.1% |
+| CodeNet | 0.181701 | 0.94% |
+| pooled | 0.227941 | 21.0% |
+
+On the CodeNet half a constant predictor scores 0.181701, so the old gate was cleared by
+a model that improved on nothing by one part in a hundred — and pooling hid it, reading
+as a respectable 21% while one half went ungated. The 25% figure approximately preserves
+the original intent on Codeforces, where 0.18 was a 26.1% reduction, and generalises it
+to any population the model is fitted on.
+
+The response definition these baselines assume is the first attempt per (user, problem)
+pair. Under an "ever solved" definition the baselines would be 0.064616 and 0.057802, and
+a 0.18 target would pass models three times worse than a constant on both halves. See
+`analysis/irt-response-definition.md`.
 
 Calibration matters more than raw accuracy here. A recommender that maximises
 learning at the ability edge needs P(solve) ≈ 0.6–0.7 to mean what it says. AUC can
@@ -52,9 +88,37 @@ leaves in the first session.
 
 | Metric | Target | Status |
 |---|---|---|
-| Rating MAE after 10-problem placement | ≤ 250 | PROVISIONAL |
+| Rating MAE after 10-problem placement, pooled | ≤ 150 | PROVISIONAL |
+| MAE within each rating band, vs that band's own-median baseline | ≥ 20% better | PROVISIONAL |
+| MAE reported per band, never pooled alone | required | PROVISIONAL |
 | Predictions carry an uncertainty interval | required | PROVISIONAL |
 | Interval coverage at stated confidence | within ±5pp | PROVISIONAL |
+
+**Why 150 and not 250.** Measured over the 55,484 current rated users:
+
+| Predictor | MAE |
+|---|---|
+| the cohort median, knowing nothing | 316.0 |
+| **a perfect five-band classifier** | **170.8** |
+| a perfect 200-point-bin classifier | 44.7 |
+
+The former target of 250 sat above the 170.8 oracle, so **a placement test that did
+nothing but sort a user into one of five rating bands passed G2 with 32% headroom.** The
+gate could not distinguish an ability estimator from a five-way classifier. 150 sits
+below that oracle, so band identification alone cannot clear it, and 44.7 is the floor
+that perfect 200-point resolution would reach.
+
+Per-band reporting is required because the cohort is not uniform: 37,783 of 55,484 users
+— 68.1% — are newbie or pupil, and that band's own-median baseline is 208.0 against 69.0
+for expert. A pooled MAE on this distribution is largely a statement about how many
+beginners the cohort contains.
+
+**A limitation this gate cannot fix.** The held-out users come from a cohort collected
+with `activeOnly=true` over rated Codeforces users. A Codrona placement-test user is not
+drawn from that population — they will be newer, likelier unrated, and weaker than even
+the newbie band. The harness therefore validates against a population the product does
+not serve, which is worth stating because cold start is exactly where the model is
+weakest.
 
 The uncertainty requirement is a product commitment, not just a metric: the interface
 says when it does not know. An honest wide interval passes; a confident wrong point
@@ -71,8 +135,25 @@ falls out of the recommender entirely.
 
 | Metric | Target | Status |
 |---|---|---|
-| Content-only prediction (tags + statement embedding) available for every problem | 100% | PROVISIONAL |
+| Content features available for every problem in the serving set | 100% | PROVISIONAL |
+| Feature set named per source, since the two sources share none | required | PROVISIONAL |
+| Degradation measured per source, never pooled | required | PROVISIONAL |
 | Content-only Brier degradation vs full-signal | ≤ 0.05 absolute | PROVISIONAL |
+
+**The former wording was unachievable by construction, not by effort.** It required
+"tags + statement embedding" for 100% of problems. Codeforces statement text can never be
+stored under link-never-host, and CodeContests supplies statements only for CodeNet-sourced
+problems. Measured, the two problem dimensions share no predictive feature at all:
+
+| Source | Tags | Statement | Difficulty label |
+|---|---|---|---|
+| Codeforces | 38-term vocabulary, 96.5% of the bank | never | rating and `solved_count` |
+| CodeNet | none, no tag column from any source | 3,474 of 4,046 | none on any row |
+
+So the feature set is named per source: tags, rating and `solved_count` for Codeforces;
+statement embedding and the resource limits for CodeNet. Degradation is measured per
+source because pooling would let dense Codeforces coverage hide thin CodeNet coverage —
+the same failure the pooled Brier had in G1.
 
 Enforced structurally: the feature pipeline fails if any problem in the serving set
 lacks content features.
@@ -224,7 +305,7 @@ Naming what a gate does not cover is what separates it from a claim.
 
 A release requires, together:
 
-1. G1, G2, G3 at target on the golden set
+1. G1, G2, G3 at target on the golden set, each reported against its stated baseline and per population or band rather than pooled
 2. G4 leakage at zero, with no red-team regression under G5
 3. G7 green against staging
 4. G8 and G10 green on the publishing run
