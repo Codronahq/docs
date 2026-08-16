@@ -54,9 +54,27 @@ Measured against the constant-predictor baseline of each population:
 
 | Population | Baseline Brier | Reduction 0.18 demanded |
 |---|---|---|
-| Codeforces | 0.243562 | 26.1% |
+| Codeforces — full response matrix, unmerged | 0.243562 | 26.1% |
+| Codeforces — full response matrix, twin-merged | 0.243587 | 26.1% |
+| **Codeforces — item bank, twin-merged — what Stage A actually fits** | **0.243166** | **26.0%** |
 | CodeNet | 0.181701 | 0.94% |
 | pooled | 0.227941 | 21.0% |
+
+**The bank row is the operative one and the other two are shown so nobody grabs
+the wrong figure.** Stage A filters the matrix to `in_public_problemset`, which is
+11,764 problems of 33,248, so a baseline computed on the full matrix describes a
+population the model is not fitted on. That is this document's own argument about
+the twin merge — a baseline computed on a different matrix than the fit is
+measuring nothing — turned on the filter, which moves the figure by 0.000421
+against the merge's 0.000025, close to seventeen times as far. Measured, gated and
+reproducible from
+`lens`: `python3 -m codrona_lens.responses.matrix --verify-current`, against the
+counts in `exports/model/responses.manifest.json`.
+
+**And even the bank figure is not the number the gate compares against.** The split
+is temporal, so the constant-predictor baseline is recomputed on the held-out
+period itself and published beside the score. 0.243166 is the whole-bank figure and
+the sanity check on that recomputation, not a substitute for it.
 
 On the CodeNet half a constant predictor scores 0.181701, so the old gate was cleared by
 a model that improved on nothing by one part in a hundred — and pooling hid it, reading
@@ -108,10 +126,33 @@ gate could not distinguish an ability estimator from a five-way classifier. 150 
 below that oracle, so band identification alone cannot clear it, and 44.7 is the floor
 that perfect 200-point resolution would reach.
 
-Per-band reporting is required because the cohort is not uniform: 37,783 of 55,484 users
-— 68.1% — are newbie or pupil, and that band's own-median baseline is 208.0 against 69.0
-for expert. A pooled MAE on this distribution is largely a statement about how many
-beginners the cohort contains.
+Per-band reporting is required because the cohort is not uniform: 37,783 of 55,484
+users — 68.1% — are **newbie**, and that band's own-median baseline is 208.0 against
+69.0 for expert. A pooled MAE on this distribution is largely a statement about how
+many beginners the cohort contains.
+
+That sentence read "newbie or pupil" until 16 Aug 2026 and the count was never
+wrong, only its label: 37,783 is newbie alone, and newbie-or-pupil is 45,960, or
+82.8%. The distinction is not cosmetic here, because the band is the unit the gate
+reports against, so a reader building five bands from the labels would compute
+different baselines than the ones published above.
+
+The five bands the 170.8 oracle assumes, named so the figure can be re-derived
+rather than taken on trust — they are `dim_user.rank_name` groupings, not invented
+cuts, and every count below comes from Codeforces' own rank boundaries:
+
+| Band | Rating, as observed in the cohort | Users |
+|---|---|---|
+| newbie | −19 to 1199 | 37,783 |
+| pupil and specialist | 1200–1599 | 13,200 |
+| expert | 1600–1898 | 3,165 |
+| candidate master, master, international master | 1900–2399 | 1,144 |
+| grandmaster and above | 2403–3857 | 192 |
+
+The ranges are observed rather than the boundaries themselves, which is why two
+of them stop short of the next band's floor: nobody in the cohort sits at 1899 or
+between 2400 and 2402. The cut points are Codeforces' own, so the reproduction is
+`group by rank_name` rather than any threshold written here.
 
 **A limitation this gate cannot fix.** The held-out users come from a cohort collected
 with `activeOnly=true` over rated Codeforces users. A Codrona placement-test user is not
