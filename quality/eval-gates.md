@@ -111,6 +111,7 @@ leaves in the first session.
 | MAE reported per band, never pooled alone | required | PROVISIONAL |
 | Predictions carry an uncertainty interval | required | PROVISIONAL |
 | Interval coverage at stated confidence | within ±5pp | PROVISIONAL |
+| Harness coverage share published beside each band's MAE | required | PROVISIONAL |
 
 **Why 150 and not 250.** Measured over the 55,484 current rated users:
 
@@ -154,6 +155,54 @@ of them stop short of the next band's floor: nobody in the cohort sits at 1899 o
 between 2400 and 2402. The cut points are Codeforces' own, so the reproduction is
 `group by rank_name` rather than any threshold written here.
 
+**How the harness gets a response, decided 16 Aug 2026.** An adaptive selector picks an
+item and needs the held-out user's answer to it. Two routes were on the table:
+restrict the selector to items the user actually attempted, which was argued to
+destroy the adaptivity under test, or generate responses from the fitted parameters,
+which makes the harness validate the model against itself. **The gate uses real
+responses, restricted to observed items. Simulated responses are never used**, because
+the circular route reports a good number and a gate that cannot report a bad one is
+not a gate.
+
+The argument against restriction was that a selector would almost never pick an item
+the user attempted. Measured over the bank, that is false:
+
+| Rank | Median observed items within ±400 of rating | Administered only | Median rating bins covered, of 6 |
+|---|---|---|---|
+| **newbie** | **33** | **10** | **2** |
+| pupil | 93 | 28 | 4 |
+| specialist | 112 | 34 | 5 |
+| expert | 126 | 42 | 5 |
+| candidate master and above | 133–282 | 42–79 | 6 |
+
+Picking ten items from a median of thirty-three is constrained, not starved. Two
+consequences follow that neither original branch had named.
+
+**The pool is all responses, contamination-filtered, never administered only.**
+Administered-only leaves a median newbie ten items for a ten-item test, which is
+replaying rather than selecting, and 17,552 newbies cannot reach ten at all. The
+`max_rating + 800` contamination filter from
+`analysis/person-margin-and-selection.md` costs **two items** at every level — 41 to 39
+for newbie, 237 to 235 above 1200 — so it is applied and is not a constraint.
+
+**Spread binds before size does, and it binds on one band.** A newbie covers a median
+of **two rating bins of six**, and **20,002 of them — 54.7% — cover fewer than three**.
+An adaptive test brackets ability by moving up and down; a user whose responses occupy
+two adjacent bins gives the selector nowhere to go. Above 1200 the problem disappears:
+`bins ≥ 3` runs 92% to 100%. So **the newbie band's figure is labelled for what it
+measures** — ability estimated from ten of the user's own near-level responses — and is
+never described as demonstrating adaptive selection, which most of that band cannot
+support. Coverage is published per band beside the MAE: 71.7% of newbies carry ten or
+more near-ability observed items against roughly 95% everywhere else, and an MAE
+computed on a band's eligible subset without that share printed beside it is a
+misleading number rather than an incomplete one.
+
+**The denominator, measured rather than assumed.** Of the cohort's 55,484 users,
+55,231 carry a bank response, 54,266 carry one on a *rated* problem, and 253 carry
+none. The 965 whose entire bank presence sits on unrated problems have no rating
+target to score against, so 54,266 is the population every per-user figure in this
+gate is computed over.
+
 **A limitation this gate cannot fix.** The held-out users come from a cohort collected
 with `activeOnly=true` over rated Codeforces users. A Codrona placement-test user is not
 drawn from that population — they will be newer, likelier unrated, and weaker than even
@@ -165,7 +214,8 @@ The uncertainty requirement is a product commitment, not just a metric: the inte
 says when it does not know. An honest wide interval passes; a confident wrong point
 estimate fails.
 
-**Runs:** simulated cold-start harness over held-out users.
+**Runs:** cold-start harness over held-out users, replaying their real responses on
+observed items. Never simulated from fitted parameters.
 
 ---
 
