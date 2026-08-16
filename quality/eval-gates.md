@@ -353,7 +353,8 @@ figure in this document silently describes a different population.
 |---|---|---|
 | Structural invariants hold on any dataset | no violation | ENFORCED |
 | Pinned counts match the real warehouse | 13 counts, exact | ENFORCED |
-| Committed manifest matches a fresh build | no differing count | ENFORCED |
+| Committed manifest matches a fresh build | no differing count or column | ENFORCED |
+| Artefact on disk matches the manifest | row count and schema | ENFORCED |
 
 **The gate is split in two, and the split is what makes it runnable.** The pinned
 counts are real-data figures — 23,607,105 fact rows, 22,843,153 attempts, 11,176,774
@@ -376,18 +377,37 @@ remap that drops rows does the reverse. Neither count catches it alone.
 different quantity than its name claimed, and the twin rule was first implemented
 from prose that disagreed with its own reproduction query.
 
-**What this gate does not cover.** It gates the build and the committed manifest. It
-does not gate the emitted Parquet's bytes: the artefact is 235 MB and uncommitted, so
-the manifest compares counts, and counts do not depend on row order. The `ORDER BY`
+**The schema block exists because counts cannot see shape.** A column added, dropped,
+renamed, retyped or reordered leaves every count in the manifest identical. That was
+demonstrated on real data rather than argued: the change adding `problem_contest_id`
+to the artefact moved none of the thirteen pinned counts. The manifest therefore
+records the emitted schema, read back from the engine rather than restated, and the
+comparison includes column order.
+
+**What this gate does not cover.** It gates the build, the committed manifest, and the
+artefact's row count and schema. It does not gate the emitted Parquet's bytes: the
+artefact is uncommitted, so the manifest compares counts and a column list, and
+neither depends on row order. The `ORDER BY`
 that would make the file byte-reproducible is kept and is deliberately **not** claimed
 as a gate — at fixture scale its removal cannot be detected, and at real scale the
 negative case is nondeterministic rather than detectable.
 
-**The manifest check is a maintainer command, not a hook.** Regenerating the
-observatory export means five small aggregates; this means a full scan of 23.6 million
-fact rows with two window functions. A gate slow enough to be skipped will be skipped,
-so it runs before a fit and before a release rather than on every commit — stated here
-rather than hidden behind a green hook.
+**Two commands, two links, neither subsuming the other.** Three things are in play —
+the warehouse, the committed manifest, and the Parquet Stage A reads. `--verify-current`
+rebuilds from the warehouse and closes both links, at the cost of a full scan of 23.6
+million fact rows with two window functions; it is the maintainer command, run before a
+fit and before a release rather than on every commit, because a gate slow enough to be
+skipped will be skipped. `--verify-artefact` closes only the manifest-to-Parquet link,
+from the Parquet footer and a JSON file, with no warehouse and no scan — measured at
+0.097s against the real 11,158,572-row artefact, which is cheap enough to hook. A
+missing artefact skips loudly under the second, which runs on machines that never built
+one, and fails under the first, which runs when there is about to be something to fit.
+
+**Until 16 Aug 2026 neither command opened the artefact at all.** `--verify-current`
+compared a fresh build against the manifest and never read the file, so an artefact
+deleted, truncated or written by another code path passed clean — while the function's
+own docstring claimed to catch precisely that. The gate watched the manifest rather
+than the thing the manifest describes.
 
 **G11 and G13 are deliberately absent from this document.** They are specified in
 `architecture/phase-2-modelling.md` with status `DESIGNED`: they gate a serving path
@@ -395,8 +415,9 @@ that does not exist until Phase 4, so nothing runs them. Listing them here would
 something does. They arrive when the serving path does.
 
 **Runs:** invariants on every push, in CI, as part of the test suite in `lens`. Pinned
-counts and the manifest comparison under `--real-data` and `--verify-current`, against
-`exports/model/responses.manifest.json`.
+counts and the manifest comparison under `--real-data` and `--verify-current`; the
+artefact comparison under `--verify-artefact`, or as part of `--verify-current`. All
+against `exports/model/responses.manifest.json`.
 
 ---
 
