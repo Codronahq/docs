@@ -24,8 +24,22 @@ not the figures the warehouse holds:
 
 | | Responses | Users | Problems | First-attempt AC | Baseline Brier |
 |---|---|---|---|---|---|
-| unmerged | 11,176,774 | 55,235 | 34,430 | 58.0238% | 0.243562 |
-| merged — **what Stage A fits** | 11,158,572 | 55,235 | 33,248 | 58.0079% | 0.243587 |
+| full matrix, unmerged | 11,176,774 | 55,235 | 34,430 | 58.0238% | 0.243562 |
+| full matrix, twin-merged | 11,158,572 | 55,235 | 33,248 | 58.0079% | 0.243587 |
+| **item bank, twin-merged - the population Stage A fits** | **10,817,555** | 55,231 | **11,764** | **58.2670%** | **0.243166** |
+
+**The bottom row is the one every calibration figure is measured against, and it
+was not in this table until 16 Aug 2026.** The marker sat on the merged full
+matrix, which is not what Stage A fits — the `in_public_problemset` filter in this
+same section removes 21,484 problems before a parameter is estimated. The
+correction is this document's own argument about the merge, that a baseline
+computed on a different matrix than the fit is measuring nothing, applied to the
+filter: it moves the figure by 0.000421 against the merge's 0.000025, close to
+seventeen times as far. `quality/eval-gates.md` G1 carried the same error against
+the same figure and was corrected first.
+
+Measured and gated in `lens`, not asserted here: `exports/model/responses.manifest.json`,
+checked by `python3 -m codrona_lens.responses.matrix --verify-current`.
 
 The baseline moves by +0.000025, which is immaterial to the gate but is quoted from the
 merged matrix regardless, because a baseline computed on a different matrix than the fit
@@ -300,7 +314,8 @@ modelled, because it measures when someone had a free evening.
 ### Stage F — Placement test design
 
 - Consumes: the fitted item bank, selecting maximum-information items at each ability level.
-- The cold-start gate targets a rating MAE of 250 after ten problems. That target is unratified and it is a stronger claim than it looks: ten binary responses is roughly 10 bits before any adaptivity. It gets ratified against a simulated harness over held-out users, and revised upward without embarrassment if the simulation says so.
+- The cold-start gate targets a rating MAE of **150** after ten problems, not 250. This bullet said 250 and said it would be "revised upward without embarrassment" until 16 Aug 2026; `quality/eval-gates.md` had already revised it, and downward, because 250 sat above the 170.8 five-band oracle and was cleared by sorting alone. Ten binary responses is roughly 10 bits before any adaptivity, so 150 is a stronger claim than it looks and stays unratified until the harness exists.
+- **The harness design is an open fork and the wrong branch looks like success.** A held-out newbie carries a median of 40 bank responses against an 11,764-problem bank, so an adaptive selector will almost never choose an item that user actually attempted. Restricting selection to observed items destroys the adaptivity being validated and understates achievable MAE; generating responses from the fitted parameters makes the harness validate the model against itself and overstates it. `quality/eval-gates.md` specifies only "simulated cold-start harness over held-out users". G2 cannot be ratified until this is decided, and the circular branch is the one that will report a good number.
 
 ---
 
@@ -354,11 +369,22 @@ side, the name-and-gap match is the whole of the evidence.
 
 ## 5. Data additions, and the one that needs a decision
 
-**`contest.standings` collection — scoped, recommended.** It converts the CONTESTANT
-subset from "who submitted" into "who was shown the problem set," which is the only
-route to a genuine missing-data structure for the administered fit. Scoped means
-standings for the contests already present in the fact table, not the whole of
-Codeforces.
+**`contest.standings` collection — scope now measured, and the recommendation is
+withdrawn pending a decision.** The fact table holds 4,612 distinct contests, 2,537 of
+them carrying CONTESTANT rows, so the scoped collection is 2,537 contests rather than
+"a collection night" — a phrase this document used twice without measuring it.
+
+Two objections, both found after the recommendation was written:
+
+- **"Who was shown the problem set" overstates it.** Being shown a set is not reading problem F. Educational measurement treats a not-reached item as missing rather than incorrect, precisely because coding it as wrong biases ability downward in proportion to contest speed rather than to the item. A roster does not distinguish "read it and could not do it" from "never opened it".
+- **The defensible part is already on disk.** The usable rule is that every index below a participant's highest attempted index was reached, and `dim_problem.problem_index` plus `fct_submission.contest_id` and `participant_type` supply exactly that at zero API calls. What standings adds beyond it is (user, contest) pairs with no submission at all, which under the same rule contribute all-missing rows.
+
+**`user.rating` is the stronger target for the same rate-limited night**, and this
+document currently defers it in section 8. It is one request per user, the shape of the
+pass that built the corpus, and it is the only external criterion available for
+validating fitted ability at more than one point in time — Stage A's central output
+currently has none, and Stage B's Elo supplies a time dimension with nothing to calibrate
+against.
 
 Binding conditions, all inherited: 1 request per 2 seconds at 2.1s spacing, a
 checkpoint per contest so an interruption costs one item, a `LEGAL.md` row before the
@@ -442,7 +468,7 @@ cover is what separates it from a claim. Specified:
 | Gate | Runs | Mechanism | Status |
 |---|---|---|---|
 | G11 item-bank honesty | serving-set build | schema requirement on the served payload | DESIGNED |
-| G12 response-unit integrity | response-builder test suite, every push | assertions with measured expected values | specifiable now |
+| G12 response-unit integrity | invariants on every push; pinned counts under `--real-data` | `codrona_lens.responses.matrix`, gated against `exports/model/responses.manifest.json` | **ENFORCED** |
 | G13 topic-cell honesty | serving-set build | schema requirement on the served payload | DESIGNED |
 
 **`DESIGNED` is a new status and it is deliberately not `PROVISIONAL`.** A provisional
@@ -470,11 +496,30 @@ assertion while failing the response one. That is the reconciliation-pair discip
 master document already requires: a count nothing compares against is a count nothing can
 catch.
 
-**Which repository G12 lives in is a Phase 2 decision, not a settled one.** The response
-builder reads the warehouse, which argues for `lens`; it produces model input, which
-argues for `mind`. Wherever it lands, the gate ships in the same commit as the builder,
-because a builder without its assertions is how 11,176,774 quietly becomes something
-else.
+**Settled: `lens`, and the reason is G10 rather than preference.** The builder reads
+`main_marts.fct_submission` through `codrona_lens.warehouse.connect`, which G10 makes
+the only sanctioned route to DuckDB. In `mind` it would either open DuckDB itself,
+violating that gate, or depend on `lens` anyway. The boundary between the two
+repositories is the emitted artefact: `lens` writes the matrix, `mind` reads a file and
+never sees the warehouse. The gate shipped in the same commit as the builder, because a
+builder without its assertions is how 11,176,774 quietly becomes something else.
+
+**Two of the six assertions above were wrong when built, and both are recorded rather
+than quietly corrected.** `twin remap key count` measured 1,180 against the 1,182 here,
+because the first implementation counted absent keys supplying a surviving *first
+attempt* rather than absent keys carrying at least one evidence row — two keys have
+evidence yet never win the ordering against the same user's earlier present-key attempt.
+Different quantity, wrong one. Separately, the rule was first implemented from
+`analysis/div1-div2-twins.md`'s prose rather than its reproduction query, and the two
+differ; see that document. The built gate carries thirteen counts rather than six, adding
+the twin rule's own rating classes and the populations its scope excludes.
+
+**G12 is split, and the split is what makes it runnable.** Pinned unconditionally, the
+counts above cannot pass against the synthetic fixtures CI builds — the wall G8 already
+meets and answers with the `real_data` dbt tag. So the structural invariants run on any
+dataset and the pinned counts run only under `--real-data`, with a test asserting the
+pinned half *must* fail on fixtures. A gate that executes on one laptop is not in CI, and
+a gate CI skips is not a gate.
 
 ---
 
@@ -511,6 +556,7 @@ records that as a stated limitation rather than an unknown.
 
 ## 9. Decisions owed by the founder
 
-- **`contest.standings` collection: approve or decline.** Recommended, scoped to contests already in the fact table. A collection night and a `LEGAL.md` row.
+- **`contest.standings` collection: approve or decline.** Recommendation changed to **decline**, on measurement rather than on cost: the scope is 2,537 contests, and the reached-item structure it is wanted for is already derivable from `problem_index` at zero API calls. See section 5.
+- **`user.rating` history collection: approve or decline.** Recommended, and it is the collection this phase actually needs. One request per user, a `LEGAL.md` row, and the only route to validating fitted ability against an external criterion over time.
 - **Response floor for prior-only items.** A number set after the first fit, not now, but the policy question is whether prior-only items are served at all or withheld until they have responses. Recommendation: served, flagged, and excluded from the calibration report's headline figure.
 - **Whether the cross-judge claim is narrowed in the master document now or after the content model is measured.** Recommendation: now, because the claim is currently stronger than anything that can be built.
