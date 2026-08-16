@@ -175,10 +175,27 @@ band: that is the only thing separating a contaminated covariate from genuine dr
 Codeforces' own calibration, and neither this document nor the measurement decides
 between them. Derivation in `analysis/solved-count-and-release-date.md`.
 
+**The ability side gets a population prior and no covariate, and that is a decision
+rather than an omission.** Hierarchical already means ability is drawn from a
+population distribution whose parameters are estimated, and that is what shrinks a
+thin person toward the mean — a newbie carrying a median of 12 administered responses
+is not left to a free estimate. The open question was only whether to *condition* that
+prior on `dim_user.rating`. It is not conditioned. The G1 split is temporal and the
+rating is a 2026-08-06 snapshot, so a prior carrying it puts post-cutoff information
+into every training row and the held-out Brier would partly read out outcomes that
+happen after the cutoff. **A temporal split with a rating-conditioned prior is not a
+temporal split.** The same leak reaches G2, which validates placement against rating;
+`analysis/person-margin-and-selection.md` records the G2 half of this and not the G1
+half, which is the larger one. A rating-conditioned variant may be fitted as a
+diagnostic and must never score G1 or G2. The decision is reconsiderable only if
+`user.rating` history is collected, since a rating as of the response date is not
+future information — section 9.
+
 - Consumes: the twin-merged matrix filtered to `in_public_problemset` — **10,817,555 responses over 11,764 problems**. Not the 11,176,774-response unmerged matrix: conforming happens before this stage (section 4), so filtering the unmerged one would fit 10,626,688, and this line named that population until 16 Aug 2026 while the table in section 1 named the correct one.
 - Emits: per-problem difficulty and discrimination with posterior intervals, per-user ability with intervals.
 - Fit: marginal maximum likelihood or variational inference in PyTorch, mini-batched. CPU-viable at this size; a free T4 is a convenience, not a requirement.
 - **The administered subset is fitted first and is the reference.** The practice rows are then added as a second fit, and the two difficulty vectors are compared on the problems both cover. Agreement is evidence the practice rows carry usable signal; systematic divergence is the self-selection bias appearing, and it is reported rather than averaged away.
+- **Practice responses far above the responder are kept, not excluded, and the effect is estimated.** Measured 16 Aug 2026 in `analysis/person-margin-and-selection.md`: excluding them at a gap of 800 rating points costs 1.5% of the bank globally but **37.56% of the 2800+ band** even anchored on peak rating, on items whose per-item median depth is 38 responses. That halves the thinnest evidence in the bank to remove a confound, in the one band where `person-margin-and-selection.md` already establishes the posterior is the prior. Instead the practice effect is fitted as an offset varying with the gap between the problem's rating and the responder's, reported **per band and never pooled** — self-selection reverses sign at 1200, so a pooled offset cancels toward agreement and reads as no effect at all. Any rule of this shape anchors on `max_rating`, never current rating: peak rating is a lifetime bound that does not decay backwards across sixteen years, and it drops 106,022 responses against 159,507 for a contamination measurably more concentrated under it.
 - **This procedure does not exist for CodeNet.** Its staging model carries no participant type, no contest context and no roster, so every CodeNet row is self-selected and there is no administered reference to check the practice fit against. The two halves therefore cannot be fitted by the same procedure, which is a second reason beyond the missing linking design that they cannot share a scale. What CodeNet offers instead is density: a per-item response count high enough that difficulty is identifiable from responses without a prior, which is exactly what Codeforces cannot offer.
 - Items below a response floor are emitted as prior-only estimates with a flag, never silently. The floor is set from the measured distribution once the first fit exists, not now.
 
@@ -570,6 +587,7 @@ records that as a stated limitation rather than an unknown.
 ## 9. Decisions owed by the founder
 
 - **`contest.standings` collection: approve or decline.** Recommendation changed to **decline**, on measurement rather than on cost: the scope is 2,537 contests, and the reached-item structure it is wanted for is already derivable from `problem_index` at zero API calls. See section 5.
-- **`user.rating` history collection: approve or decline.** Recommended, and it is the collection this phase actually needs. One request per user, a `LEGAL.md` row, and the only route to validating fitted ability against an external criterion over time.
+- **`user.rating` history collection: approve or decline.** Still recommended, and the recommendation now rests on two grounds rather than four. It is the only route to validating fitted ability against an external criterion over time, and it is the only thing that would make a rating-conditioned ability prior admissible under a temporal split (Stage A). Two things that were argued to need it do **not**: the practice-response rule, since 71.3% of bank responses fall within one year of the 2026-08-06 snapshot and 94.3% within four, and `max_rating` anchors that rule with no collection at all; and the non-monotone newbie share, which `max_rank_name` separated on 16 Aug 2026 without it. One request per user, a `LEGAL.md` row before the first request, and roughly 32 hours of request spacing alone at the documented 1-request-per-2-seconds limit — the shape of the pass that built the corpus rather than a single night.
+- **Whether the ability prior is ever conditioned on rating.** Recommendation: not now, and this is downstream of the `user.rating` decision rather than parallel to it. On today's data the answer is no on leakage grounds alone; if rating history is collected the answer changes, because a rating as of the response date is not future information. Settling it before the collection decision would settle it on the wrong evidence.
 - **Response floor for prior-only items.** A number set after the first fit, not now, but the policy question is whether prior-only items are served at all or withheld until they have responses. Recommendation: served, flagged, and excluded from the calibration report's headline figure.
 - **Whether the cross-judge claim is narrowed in the master document now or after the content model is measured.** Recommendation: now, because the claim is currently stronger than anything that can be built.
