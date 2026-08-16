@@ -91,9 +91,9 @@ contest pairs share one or two problems, and those are the weak cases.
 
 A candidate twin requires all three:
 
-1. The two contest ids differ by exactly one.
-2. The problem names are equal.
-3. The ratings agree, or neither side is rated. No pair at gap 1 has exactly one side rated, so that case is vacuous rather than admitted.
+1. The two contest ids differ by exactly one, **and the unpublished side is the higher of the two**. This clause read as symmetric until 16 Aug 2026, while the reproduction query below has always been directional (`p.problem_contest_id = a.problem_contest_id - 1`). The query is what produced every yield on this page, so the query is the rule and the prose was wrong. What the direction excludes is measured below.
+2. The problem names are equal, **and no contest publishes that name twice**. This was never stated because nothing tested it; the reversed-direction set below contains two absent keys that each draw two published partners, so the assumption is real and it is not universal.
+3. The ratings agree, or neither side is rated — **in the prose. The query admits a pair where EITHER side is unrated.** Measured over the gap-1 population the two readings pick out the same 1,183 pairs, because no pair has exactly one side rated, so the divergence is vacuous today. It is stated rather than tidied away because the day it stops being vacuous, the prose and the query would silently disagree about the item bank. The implementation follows the query and carries a counter that fails if that count ever leaves zero.
 
 **Yield: 1,174 rating-agreeing problems carrying 523,813 submissions, or 1,183
 including the nine unrated-on-both-sides pairs, which carry 523,997 between them.**
@@ -103,11 +103,69 @@ returns; the 1,174 figure names the rating-agreeing subset alone. Quote whicheve
 meant and say which. Those are the responses
 that would otherwise be split across two keys.
 
+## What the rule cannot see
+
+Measured when the rule was implemented, by running it without the direction
+constraint and without the gym predicate. None of these change the yield above;
+all three are recorded because a population dropped silently is how nobody knew
+about the first one.
+
+**43 gap-1 mainline pairs sit in the reversed direction** — 74 name matches of
+which 43 pass the rating clause — where the *published* side carries the higher
+contest id. The directional query never looks there. They are not simply 43 more
+twins: contest 206/207 dominates the set and breaks clause 2, since
+`The Beaver's Problem - 3` occupies 206D1 and 206D2 on one side and 207D1, 207D2,
+207D3 and 207D9 on the other, at two different ratings. That is a subtask-indexed
+round, where a name match resolves nothing and merging on it would pool problems of
+genuinely different difficulty. Admitting the reversed direction is therefore a
+modelling decision with its own evidence to gather, not a widened predicate.
+
+**Four gap-1 mainline pairs have both keys published, and one of them passes every
+clause of the rule.** Three are themed-round name reuse that the rating clause
+rejects outright — `Mr. Kitayuta's Gift` at 1100 against 3000, `Mr. Kitayuta's
+Colorful Graph` at 1400 against 2400, `Drazil and His Happy Friends` at 1300
+against 3100. The fourth is **`420C` / `421D`, `Bug in Code`, rated 1900 on both
+sides**. If that is one problem, its responses are currently split across two keys
+that are *both already in the item bank*, which is precisely the harm this document
+exists to prevent and the one case the absent-versus-present framing cannot express.
+Not merged, because a wrong merge is undetectable afterwards and one pair is not
+evidence; recorded so it is a decision rather than an oversight.
+
+**606 gap-1 name pairs sit in gym.** Out of the archive's scope and out of the item
+bank, so they cannot affect any yield here. They are counted anyway because the
+response matrix is deliberately *not* bank-filtered, so a mirrored gym contest would
+split one problem's responses inside it.
+
+**The query's `problem_contest_id < 100000` predicate is inert.** A gym problem is
+never in the public problemset, so it can never be the published side, and a gym
+absent problem can only match a published partner that is by definition not gym.
+Removing it changes nothing. It documents intent and filters nothing, which is worth
+knowing before anyone treats it as load-bearing.
+
+## The merge, as built
+
+Applied at model input in `codronahq/lens`, never to the warehouse. The map holds
+**1,183 entries**; **1,182** of those absent keys carry at least one person-level
+evidence row, the remaining one carrying none and never entering the matrix.
+Collapsing first attempts across both sides removes **18,202** duplicate responses,
+and **202,102** surviving responses are attributed to an absent source key.
+
+That last figure reconciles against this document rather than standing alone:
+190,867 pairs touch an absent key only, and 11,235 of the 18,202 users who touched
+both sides submitted to the absent side first, which sums to exactly 202,102.
+**61.7% attempting the unpublished side first** is the Div. 2 round being played
+live and the Div. 1 mirror met later in practice — the same mechanism the index
+shift above infers from structure, visible here in the ordering.
+
+Reproducible from `exports/model/responses.manifest.json` in `lens` via
+`python3 -m codrona_lens.responses.matrix --verify-current`.
+
 Explicitly excluded, and each for a stated reason rather than by omission:
 
 - Matches at any contest gap other than 1 — the rating disagreements live entirely here, so these are name collisions rather than twins.
 - Matches resolved only by tags — superseded, and the tags route left 156 ambiguous against 11 for rating.
-- Gym and acmsguru — out of the archive's scope, and acmsguru carries no contest id to compare.
+- Gym and acmsguru — out of the archive's scope, and acmsguru carries no contest id to compare. The gym exclusion is stated intent rather than an active filter; see above.
+- The reversed direction, both-published pairs, and gym name matches — measured above rather than merely asserted, and each excluded for a reason of its own.
 - The 9 pairs where neither side is rated pass the rule but should be handled explicitly by the model rather than silently, since nothing corroborates them at all — no rating on either side means the name-and-gap match is the whole of the evidence. They carry **184 submissions between them, every one an evidence row**, averaging 20 per problem: obscure enough that neither side ever earned a rating, which is the same fact seen from the other side. 523,997 − 523,813 = 184 and 520,639 − 520,455 = 184, so the two yields reconcile against each other rather than each standing alone.
 
 ## Why the warehouse is not changed
