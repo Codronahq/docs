@@ -162,7 +162,20 @@ and `log(solved_count)`, so a thin item shrinks toward its prior instead of fitt
 noise, and a dense item overrides it. This is the only structure under which the hard
 bands are estimable at all.
 
-- Consumes: the 11,176,774-response matrix, filtered to `in_public_problemset`.
+**The second covariate carries publication date, and this changes what the prior is
+allowed to be.** Measured 16 Aug 2026 over the bank: with rating removed as a factor,
+`ln(solved_count)` still correlates with contest id at 0.4444 in 1200-1599 and 0.4353
+in 1600-1999 — a fifth of the residual variance the covariate exists to explain — and
+the sign crosses zero between rating 2700 and 2800. Three things bind this stage as a
+result. A single global date term is provably wrong, so any date term must vary with
+rating. `log(solved_count)` needs a guard, because 31 bank problems carry
+`solved_count = 0` and this document specified no such guard. And the fit must emit a
+post-fit diagnostic correlating the fitted difficulty residual against contest id per
+band: that is the only thing separating a contaminated covariate from genuine drift in
+Codeforces' own calibration, and neither this document nor the measurement decides
+between them. Derivation in `analysis/solved-count-and-release-date.md`.
+
+- Consumes: the twin-merged matrix filtered to `in_public_problemset` — **10,817,555 responses over 11,764 problems**. Not the 11,176,774-response unmerged matrix: conforming happens before this stage (section 4), so filtering the unmerged one would fit 10,626,688, and this line named that population until 16 Aug 2026 while the table in section 1 named the correct one.
 - Emits: per-problem difficulty and discrimination with posterior intervals, per-user ability with intervals.
 - Fit: marginal maximum likelihood or variational inference in PyTorch, mini-batched. CPU-viable at this size; a free T4 is a convenience, not a requirement.
 - **The administered subset is fitted first and is the reference.** The practice rows are then added as a second fit, and the two difficulty vectors are compared on the problems both cover. Agreement is evidence the practice rows carry usable signal; systematic divergence is the self-selection bias appearing, and it is reported rather than averaged away.
@@ -530,7 +543,7 @@ a gate CI skips is not a gate.
 | 1 | ~~CodeNet response matrix measured~~ — DONE, see the analysis doc | nothing |
 | 2 | ~~Tag coverage and co-occurrence measured~~ — DONE, section 3 Stage B | nothing |
 | 3 | ~~Twins yield re-measured at pair level~~ — DONE, section 4 | nothing |
-| 4 | Twin key-mapping applied at model input | Stage A |
+| 4 | ~~Twin key-mapping applied at model input~~ — DONE, built in `lens` with G12 enforced | nothing |
 | 5 | Stage A on the administered subset | everything downstream |
 | 6 | Stage A on all first attempts, compared | the self-selection report |
 | 7 | Stages B and C — both respecified in section 3 against measurement | Stage D |
@@ -550,7 +563,7 @@ records that as a stated limitation rather than an unknown.
 - Any warehouse mutation. Twins conforming is a model-input mapping.
 - Hyperparameters, learning rates and architecture sizes. These come out of the first fit.
 - The live experiment. Off-policy estimates only until Phase 5.
-- Rating history per user. `user.ratedList` gives today's rating only, so ability trajectories are inferred from responses rather than validated against a rating curve.
+- Rating history per user, **unless section 9's decision approves collecting it**. `user.ratedList` gives today's rating only, so absent that collection, ability trajectories are inferred from responses rather than validated against a rating curve. This bullet read as an unconditional exclusion until 16 Aug 2026, contradicting section 9's recommendation to approve.
 
 ---
 
