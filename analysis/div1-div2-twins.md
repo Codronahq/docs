@@ -62,11 +62,31 @@ consistent offset:
 Three near-identical counts at C→A, D→B, E→C is the Div. 2 A/B/C to Div. 1 C/D/E
 offset showing up in the data. A string coincidence does not produce that shape.
 
+**The full offset distribution is wider than those four rows, measured 16 Aug 2026.**
+Over the 1,112 map entries carrying a single-character index on both sides — 68 have a
+multi-character absent index and 3 a multi-character published one, which reconciles
+to 1,183 — the offsets run **+2 at 879**, −2 at 81, +3 at 73, **0 at 43**, +1 at 21,
+−1 at 8, and 9 pairs spread over ten further offsets. The four rows above name 864 of
+the 879. So +2 holds 79% and the rest of the population is not at +2 at all: 43 pairs
+share an index outright and **81 run the opposite way**, with the archived side
+indexed higher. The Div. 2 to Div. 1 shift is the dominant mechanism and not the only
+one. An offset of +2 is therefore evidence *for* a pair, while its absence is not
+evidence against — a distinction this document did not previously support, and one
+that matters immediately below.
+
 ## The finding that settles it
 
-**At a contest gap of 1, no name-matched pair disagrees on rating.** Of 1,183
-name-matched pairs at gap 1: 1,174 agree, 9 have **neither** side rated, and zero
-differ. Not one pair has exactly one side rated.
+**At a contest gap of 1, and in the rule's direction, no name-matched pair disagrees
+on rating.** Of 1,183 name-matched pairs: 1,174 agree, 9 have **neither** side rated,
+and zero differ. Not one pair has exactly one side rated.
+
+**The direction is load-bearing in that sentence, and was left implicit until
+16 Aug 2026.** The reversed population sits at gap 1 too, and is the mirror image: of
+its 74 name matches, 37 agree, **zero** have neither side rated, **6** have exactly
+one, and **31 differ**. So rating disagreement does occur at gap 1 — just never in the
+direction the rule looks — and the two populations' unrated profiles are exact
+opposites, 9-and-0 against 0-and-6. Every claim on this page scoped to "gap 1" means
+gap 1 in the rule's direction. The reversed figures are below.
 
 That distinction was recorded wrongly here until 15 Aug 2026 and matters to the
 model rather than to the prose. A pair with one side rated carries a corroborating
@@ -93,7 +113,7 @@ A candidate twin requires all three:
 
 1. The two contest ids differ by exactly one, **and the unpublished side is the higher of the two**. This clause read as symmetric until 16 Aug 2026, while the reproduction query below has always been directional (`p.problem_contest_id = a.problem_contest_id - 1`). The query is what produced every yield on this page, so the query is the rule and the prose was wrong. What the direction excludes is measured below.
 2. The problem names are equal, **and no contest publishes that name twice**. This was never stated because nothing tested it; the reversed-direction set below contains two absent keys that each draw two published partners, so the assumption is real and it is not universal.
-3. The ratings agree, or neither side is rated — **in the prose. The query admits a pair where EITHER side is unrated.** Measured over the gap-1 population the two readings pick out the same 1,183 pairs, because no pair has exactly one side rated, so the divergence is vacuous today. It is stated rather than tidied away because the day it stops being vacuous, the prose and the query would silently disagree about the item bank. The implementation follows the query and carries a counter that fails if that count ever leaves zero.
+3. The ratings agree, or neither side is rated — **in the prose. The query admits a pair where EITHER side is unrated.** Over the rule's own directional population the two readings pick out the same 1,183 pairs, because no pair there has exactly one side rated, so the divergence is vacuous **in scope**. It is **not** vacuous outside it: six of the reversed direction's 74 name matches have exactly one side rated, and all six sit inside the 43 that pass, so that audited count is 37 agreeing plus 6 half-rated and a reader applying the prose rule to it computes 37. This clause claimed the divergence was vacuous outright until 16 Aug 2026. The implementation follows the query, carries a counter that fails if the in-scope count ever leaves zero, and now carries the reversed class split so the 43 reconciles to either reading without anyone recomputing it.
 
 **Yield: 1,174 rating-agreeing problems carrying 523,813 submissions, or 1,183
 including the nine unrated-on-both-sides pairs, which carry 523,997 between them.**
@@ -120,16 +140,46 @@ round, where a name match resolves nothing and merging on it would pool problems
 genuinely different difficulty. Admitting the reversed direction is therefore a
 modelling decision with its own evidence to gather, not a widened predicate.
 
+**It is now costed, and the cost closes it.** Of the 43 pairs only **30** absent keys
+carry any evidence at all, totalling **161 responses**, with **9 users** on both
+sides. The rule's own merge routed 190,867 responses into the item bank; admitting
+the reversed direction would route 161, roughly **1,185 times less**, in exchange for
+the 206/207 subtask hazard above and the 31 rating disagreements the direction
+currently filters out. **Decision: not admitted, and not deferred again.** The number
+is recorded so the question is answered rather than left open.
+
 **Four gap-1 mainline pairs have both keys published, and one of them passes every
 clause of the rule.** Three are themed-round name reuse that the rating clause
 rejects outright — `Mr. Kitayuta's Gift` at 1100 against 3000, `Mr. Kitayuta's
 Colorful Graph` at 1400 against 2400, `Drazil and His Happy Friends` at 1300
 against 3100. The fourth is **`420C` / `421D`, `Bug in Code`, rated 1900 on both
-sides**. If that is one problem, its responses are currently split across two keys
-that are *both already in the item bank*, which is precisely the harm this document
-exists to prevent and the one case the absent-versus-present framing cannot express.
-Not merged, because a wrong merge is undetectable afterwards and one pair is not
-evidence; recorded so it is a decision rather than an oversight.
+sides** — the one case the absent-versus-present framing cannot express, since both
+keys are already in the item bank. **Measured 16 Aug 2026, and decided: not merged,
+and no longer an open item.** `420C` carries 71 responses and `421D` 31, with **18
+users holding both**, so the split is real and small. Three things say they are two
+problems rather than one.
+
+Codeforces publishes exactly one problemset entry per problem: every one of the 1,183
+canonical twins appears once, which is the entire reason the rule is shaped as absent
+versus present. It gave these two entries. That is the platform's own statement, and
+it is the strongest evidence available here.
+
+Their tags overlap at a Jaccard of **0.167** — `data structures, graphs,
+implementation, two pointers` against `binary search, data structures, sortings`,
+one tag shared of six. That is the joint-lowest of the four, while `505B` / `506D`,
+a pair nobody disputes is two different problems, sits at **0.600**. A duplicate
+should top that column; this one bottoms it.
+
+Of the 18 users holding both, **8 solved one and failed the other** — weak on its own,
+since a first attempt in contest and one in practice years later differ legitimately,
+and it points the same way as the rest.
+
+Equal ratings are the single clause it satisfies, and the rating clause is a filter
+against collisions rather than positive evidence of identity: it rejected the other
+three by a mechanism — wildly divergent difficulty — that has nothing to do with
+both-published pairs, and on the one pair where ratings coincide it gave no answer at
+all. The index offset of +1 is **not** among the reasons: 21 confirmed twins sit at
++1, as the distribution above records.
 
 **606 gap-1 name pairs sit in gym.** Out of the archive's scope and out of the item
 bank, so they cannot affect any yield here. They are counted anyway because the
@@ -201,6 +251,38 @@ join present p
  and (p.problem_rating = a.problem_rating
       or p.problem_rating is null or a.problem_rating is null);
 ```
+
+The reversed population's rating classes and the offset distribution, both added
+16 Aug 2026. The first is also emitted by `lens` into
+`exports/model/responses.manifest.json` under `twin_excluded`, so the query and the
+gate can be compared rather than trusted separately.
+
+```sql
+-- reversed direction: name matches by rating class
+with cur as (
+    select * from main_marts.dim_problem
+    where is_current and problem_contest_id is not null
+      and problem_contest_id < 100000 and problem_name is not null
+),
+absent as (select * from cur where not in_public_problemset),
+present as (select * from cur where in_public_problemset)
+select case
+         when a.problem_rating is null and p.problem_rating is null then 'both unrated'
+         when a.problem_rating is null or p.problem_rating is null then 'one unrated'
+         when a.problem_rating = p.problem_rating then 'agree'
+         else 'differ'
+       end as rating_class,
+       count(*) as pairs
+from absent a
+join present p
+  on p.problem_name = a.problem_name
+ and p.problem_contest_id = a.problem_contest_id + 1
+group by 1 order by 2 desc;
+```
+
+The offset distribution needs the derived map rather than a single query; it is
+`twins.derive` joined back to `dim_problem` on both keys, differencing
+`ascii(problem_index)` and restricted to single-character indices on both sides.
 
 ## A note on earlier figures
 
