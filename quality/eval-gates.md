@@ -342,6 +342,64 @@ Naming what a gate does not cover is what separates it from a claim.
 
 ---
 
+## G12 — Response-unit integrity
+
+**Failure guarded:** the matrix every model consumes stops being the thing these
+baselines were measured on, and nothing says so. A refactor of the response builder
+changes a count; the fit still runs, the calibration report still prints, and every
+figure in this document silently describes a different population.
+
+| Metric | Target | Status |
+|---|---|---|
+| Structural invariants hold on any dataset | no violation | ENFORCED |
+| Pinned counts match the real warehouse | 13 counts, exact | ENFORCED |
+| Committed manifest matches a fresh build | no differing count | ENFORCED |
+
+**The gate is split in two, and the split is what makes it runnable.** The pinned
+counts are real-data figures — 23,607,105 fact rows, 22,843,153 attempts, 11,176,774
+unmerged responses, 11,158,572 merged, 1,182 twin keys carrying evidence, and the
+twin rule's own rating classes and excluded populations. Pinned unconditionally they
+cannot pass against the synthetic fixtures CI builds, which is the wall G8 already
+meets and answers with the `real_data` dbt tag. So the structural invariants run on
+every push against any dataset, and the pinned counts run only under `--real-data`.
+A test asserts that the pinned half **must** fail on fixtures, because a real-data
+gate that passes on invented rows is gating nothing.
+
+**The reconciliation pair is what catches the failure worth catching.** A merge must
+move rows between keys and never remove any, so responses fall by exactly the
+duplicate count while attempts stay identical. A remap that relabels without
+collapsing first attempts passes the attempt assertion and fails the response one; a
+remap that drops rows does the reverse. Neither count catches it alone.
+
+**Two of the assertions were wrong when first written**, and both are recorded in
+`architecture/phase-2-modelling.md` rather than quietly corrected: one counted a
+different quantity than its name claimed, and the twin rule was first implemented
+from prose that disagreed with its own reproduction query.
+
+**What this gate does not cover.** It gates the build and the committed manifest. It
+does not gate the emitted Parquet's bytes: the artefact is 235 MB and uncommitted, so
+the manifest compares counts, and counts do not depend on row order. The `ORDER BY`
+that would make the file byte-reproducible is kept and is deliberately **not** claimed
+as a gate — at fixture scale its removal cannot be detected, and at real scale the
+negative case is nondeterministic rather than detectable.
+
+**The manifest check is a maintainer command, not a hook.** Regenerating the
+observatory export means five small aggregates; this means a full scan of 23.6 million
+fact rows with two window functions. A gate slow enough to be skipped will be skipped,
+so it runs before a fit and before a release rather than on every commit — stated here
+rather than hidden behind a green hook.
+
+**G11 and G13 are deliberately absent from this document.** They are specified in
+`architecture/phase-2-modelling.md` with status `DESIGNED`: they gate a serving path
+that does not exist until Phase 4, so nothing runs them. Listing them here would imply
+something does. They arrive when the serving path does.
+
+**Runs:** invariants on every push, in CI, as part of the test suite in `lens`. Pinned
+counts and the manifest comparison under `--real-data` and `--verify-current`, against
+`exports/model/responses.manifest.json`.
+
+---
+
 ## Release gate
 
 A release requires, together:
@@ -349,7 +407,7 @@ A release requires, together:
 1. G1, G2, G3 at target on the golden set, each reported against its stated baseline and per population or band rather than pooled
 2. G4 leakage at zero, with no red-team regression under G5
 3. G7 green against staging
-4. G8 and G10 green on the publishing run
+4. G8, G10 and G12 green on the publishing run, G12 including its pinned counts and its manifest comparison rather than its invariants alone
 5. Every threshold cited in any public artefact traced to Canonical Numbers
 
 Any one failing blocks the release. There is no override; the correct response is to
