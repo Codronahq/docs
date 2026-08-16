@@ -160,6 +160,36 @@ rank and the same band is 20.82pp at 2800+, 24.28pp at 2400–2799 and 22.47pp a
 2000–2399. Retroactive rating, editorial lookup in practice mode, and alternate
 accounts all produce this shape and nothing here separates them.
 
+**Peak rank does not explain it away — it widens the gap.** `max_rank_name` is the
+highest rank a user ever held, so restricting to users who were *never* above newbie
+removes every former expert whose practice solves would be legitimate. Measured
+16 Aug 2026:
+
+| Problem band | Mode | Responses | Accepted | Rate |
+|---|---|---|---|---|
+| 2000–2399 | practice | 13,627 | 5,254 | 38.56% |
+| 2000–2399 | administered | 2,373 | 292 | 12.31% |
+| 2400–2799 | practice | 5,371 | 1,788 | 33.29% |
+| 2400–2799 | administered | 1,242 | 81 | 6.52% |
+| 2800+ | practice | 4,008 | 1,071 | 26.72% |
+| 2800+ | administered | 907 | 38 | **4.19%** |
+
+The gaps go 22.47 → **26.25**, 24.28 → **26.77**, 20.82 → **22.53**.
+
+**Which column moves is the finding.** The administered rates fall — 15.53 → 12.31,
+8.66 → 6.52, 4.64 → 4.19 — because the users removed were genuinely stronger once and
+their in-contest solves were real. The practice rates do not fall. At 2800+ the rate
+*rises*, 25.46% → 26.72%: removing every user who ever exceeded 1200 moves practice
+acceptance on the hardest problems by 1.26pp.
+
+If a practice response carried ability signal, restricting to a strictly weaker
+population would push its acceptance rate down. It does not move. **Practice
+acceptance on far-above-rating problems is close to invariant to the responder's
+ability**, which is what a contaminated response value looks like and what an
+ability-bearing one does not. That is the stronger form of the argument below, and it
+needed no collection — the hypothesis under test was the opposite one, that former
+experts inflate the practice rate, and the measurement reversed it.
+
 **Why this is worse than self-selection.** Self-selection biases *which* items get a
 response. This biases *the response value itself*: a positive response that does not
 reflect the person's ability on that item. Item response theory assumes it does. The
@@ -167,6 +197,30 @@ blueprint's choice of the administered subset as the reference is right, and for
 stronger reason than it gives — and whether practice responses far above the
 responder's rating are excluded, downweighted or kept is a Stage A decision the
 blueprint does not yet contain.
+
+**What exclusion would cost, at a gap of 800 rating points.** Globally it looks cheap:
+159,507 bank responses against current rating, 1.5% of the total. **50.7% of that drop
+lands in the two hardest bands**, which hold 2.5% of the bank between them.
+
+| Problem band | Bank responses | Dropped, current rating | Dropped, peak rating | % of band, peak |
+|---|---|---|---|---|
+| under 1200 | 6,198,043 | 53 | 0 | 0.00 |
+| 1200–1599 | 2,499,892 | 9,645 | 8,106 | 0.32 |
+| 1600–1999 | 1,209,297 | 24,744 | 15,378 | 1.27 |
+| 2000–2399 | 477,999 | 44,229 | 24,613 | 5.15 |
+| 2400–2799 | 187,660 | 44,851 | 28,823 | 15.36 |
+| 2800+ | 77,479 | 35,985 | 29,102 | **37.56** |
+
+**Any rule of this shape should anchor on `max_rating`, never current rating.** Peak
+rating is a lifetime bound and does not decay backwards across sixteen years, and it
+drops 106,022 responses against 159,507 — a third less collateral, for a contamination
+the table above shows is if anything more concentrated under it. Every practice figure
+on this page before 16 Aug 2026 was computed against current rating alone.
+
+Even peak-anchored, exclusion costs **37.56% of the 2800+ band**, whose per-item median
+depth is 38 responses. Halving the thinnest items in the bank to remove a confound is
+the trade this document declines to recommend; the decision itself belongs in
+`architecture/phase-2-modelling.md` Stage A, with these numbers attached.
 
 ## A caveat that touches every rank figure here
 
@@ -181,13 +235,23 @@ administered responses has them regardless of when. **Rank attributions do not.*
 "80.1% CM and above on 2800+" assigns responses from across sixteen years by 2026
 rank.
 
-The non-monotone newbie share is where this shows. Newbies are 33.5% of administered
-responses under 1200, falling to 3.8% at 2000–2399, then **rising to 4.5% and 7.9%**
-in the two hardest bands. Two readings fit — Div. 2 rounds administering a 2800+
-final problem to everyone registered, which is benign and informative, or today's
-rank misdescribing who those people were — and this document does not separate them.
-`user.rating` history is the collection that would; it is a decision owed in
-`architecture/phase-2-modelling.md` section 9.
+The non-monotone newbie share is where this shows. Newbies are 33.52% of administered
+responses under 1200, falling to 3.80% at 2000–2399, then **rising to 4.54% and 7.90%**
+in the two hardest bands. Two readings fit: Div. 2 rounds administering a 2800+ final
+problem to everyone registered, which is benign and informative, or today's rank
+misdescribing who those people were.
+
+**`max_rank_name` separates them, measured 16 Aug 2026, and the benign reading wins.**
+Restricted to users who never exceeded newbie at any point, the same curve reads
+22.33% → 6.24% → 2.64% → **1.99%** → 3.11% → **6.27%**. The rise survives and steepens:
+**3.15×** from trough to the hardest band, against 2.08× under current rank. The
+responses producing it come from people who were never strong, not from strong people
+misdescribed by a 2026 snapshot.
+
+This document said `user.rating` history was the collection that would settle it. A
+column already in `dim_user` settled it instead. `user.rating` history stays owed for
+the ability prior and for validating fitted ability over time, which are different
+questions and are unaffected by this.
 
 ## What this document does not claim
 
@@ -248,4 +312,39 @@ select b.problem_rating >= 2400 as hard,
        median(d.n_adm) as median_responder_depth
 from bank b join depth d on d.user_key = b.user_key
 where b.adm group by 1;
+```
+
+The peak-rank figures need `dim_user`, which the matrix deliberately does not carry.
+Swap `rank_name` for `max_rank_name` to move between the two versions of every rank
+figure above — that substitution is the whole of the difference.
+
+```sql
+-- practice contamination, and the newbie share, under either rank column
+with bank as (
+    select r.problem_rating, r.is_accepted,
+           r.participant_type in ('CONTESTANT', 'VIRTUAL') as adm,
+           u.rank_name, u.max_rank_name, u.rating, u.max_rating
+    from read_parquet('~/codrona-data/model/responses.parquet') r
+    join main_marts.dim_user u on u.user_key = r.user_key and u.is_current
+    where r.in_public_problemset and r.problem_rating is not null
+)
+select problem_rating >= 2800 as hardest,
+       count(*) filter (where not adm) as prac_n,
+       count(*) filter (where not adm and is_accepted) as prac_ok,
+       count(*) filter (where adm) as adm_n,
+       count(*) filter (where adm and is_accepted) as adm_ok
+from bank
+where max_rank_name = 'newbie' and problem_rating >= 2000
+group by 1;
+```
+
+```sql
+-- what excluding practice far above the responder would cost, either anchor
+select count(*) as responses,
+       sum(case when not adm and problem_rating >= rating + 800 then 1 else 0 end)
+         as drop_current,
+       sum(case when not adm and problem_rating >= max_rating + 800 then 1 else 0 end)
+         as drop_peak
+from bank
+where rating is not null and max_rating is not null;
 ```
