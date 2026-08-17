@@ -283,6 +283,7 @@ falls out of the recommender entirely.
 | Feature set named per source, since the two sources share none | required | PROVISIONAL |
 | Degradation measured per source, never pooled | required | PROVISIONAL |
 | Content-only Brier degradation vs full-signal | ≤ 0.05 absolute | PROVISIONAL |
+| Proxy-versus-real population divergence, published beside the figure | required | PROVISIONAL |
 
 **The former wording was unachievable by construction, not by effort.** It required
 "tags + statement embedding" for 100% of problems. Codeforces statement text can never be
@@ -298,6 +299,29 @@ So the feature set is named per source: tags, rating and `solved_count` for Code
 statement embedding and the resource limits for CodeNet. Degradation is measured per
 source because pooling would let dense Codeforces coverage hide thin CodeNet coverage —
 the same failure the pooled Brier had in G1.
+
+**This gate's population is measured, and its metric is measured on a proxy.** At the
+G1 cutoff of 2026-01-01, **447 problems — 3.80% of the bank — carry 1,980,416 held-out
+responses**, 45.29% of the period, which is the second-largest of the three gate
+populations. But "content-only degradation versus full signal" cannot be computed on
+those problems at all: a genuinely new item has no full signal to degrade from. The
+figure is therefore measured on items that **do** have history, with the history hidden,
+and the two populations are not the same one.
+
+The proxy holds up on features and is stated rather than assumed. Tag coverage is
+effectively identical — a median of 3 tags on both sides, 3.13% of new problems with no
+tags against 3.51% of old. The rating mix departs by a total variation distance of
+**11.78pp**, a mild barbell: more easy problems (+5.88pp under 1200), more hard (+1.97pp
+at 2800+), more unrated (+3.93pp), and fewer in the 1600–2399 middle. Small enough to
+use, large enough to publish beside the degradation figure.
+
+What does **not** transfer is density: new problems carry 4,430 responses each against
+781 for old ones, a 5.67× ratio, because a problem published inside the collection
+window is attempted by the whole `activeOnly=true` cohort at once. The proxy therefore
+measures degradation on thinner items than the ones this gate guards. That makes the
+measurement noisier per item rather than biased, since content-only prediction uses no
+response signal either way — but a per-item degradation figure and a per-response one
+are different numbers here, and the gate reports per response.
 
 Enforced structurally: the feature pipeline fails if any problem in the serving set
 lacks content features.
