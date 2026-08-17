@@ -48,6 +48,8 @@ wrong difficulty and the ladder stops adapting.
 | The baseline published beside every Brier figure | required | PROVISIONAL |
 | Expected calibration error (10 bins) | ≤ 0.05 | PROVISIONAL |
 | Reliability curve | published artefact, every release | PROVISIONAL |
+| The scored partition's share of the held-out period, published | required | PROVISIONAL |
+| Every held-out response routed to G1, G2 or G3, none dropped | required | PROVISIONAL |
 
 **Why a reduction rather than an absolute number.** The former target was Brier ≤ 0.18.
 Measured against the constant-predictor baseline of each population:
@@ -72,9 +74,19 @@ reproducible from
 counts in `exports/model/responses.manifest.json`.
 
 **And even the bank figure is not the number the gate compares against.** The split
-is temporal, so the constant-predictor baseline is recomputed on the held-out
-period itself and published beside the score. 0.243166 is the whole-bank figure and
-the sanity check on that recomputation, not a substitute for it.
+is temporal, so the constant-predictor baseline is recomputed on **the partition this
+gate actually scores** and published beside the score. That phrase read "the held-out
+period itself" until 17 Aug 2026, which is a different and larger population — see the
+partition below. 0.243166 is the whole-bank figure and the sanity check on that
+recomputation, not a substitute for it.
+
+**Measured at a 2026-01-01 cutoff:** the G1 partition holds **1,815,276 responses at a
+59.4847% base rate, for a baseline of 0.241004** and a 25%-reduction target of
+**0.180753**. The three candidate populations give targets of 0.182374 (whole bank),
+0.179109 (whole held-out period) and 0.180753 (this partition) — a 1.79% relative
+spread. Small, unlike the full-matrix-versus-bank error that motivated this paragraph,
+and named anyway because a gate that cannot say which population it scores cannot say
+what it measures.
 
 On the CodeNet half a constant predictor scores 0.181701, so the old gate was cleared by
 a model that improved on nothing by one part in a hundred — and pooling hid it, reading
@@ -94,6 +106,47 @@ be excellent while calibration is useless.
 Held-out split is **temporal**, not random — train on submissions before a cutoff,
 evaluate after. A random split leaks, because a user's later submissions inform their
 earlier ones.
+
+**One cutoff partitions the held-out period across three gates, and each share is
+measured.** A test response can only be scored by G1 if both its user and its item
+carry fitted parameters. At 2026-01-01, over 4,373,038 held-out bank responses:
+
+| Population | Share | Responses | Scored by |
+|---|---|---|---|
+| known user × known item | **41.51%** | 1,815,276 | **G1** |
+| new item only | 36.80% | 1,609,278 | **G3** |
+| new user only | 13.20% | 577,241 | **G2** |
+| both new | 8.49% | 371,271 | G2 ∩ G3 |
+
+**G1 covering 41.51% is its scope, not a shortfall** — provided the other 58.49% is
+routed to G2 and G3 rather than dropped. A held-out response that no gate claims is a
+response nothing measures, and until 17 Aug 2026 nothing in this document said where
+those go.
+
+**Why 2026-01-01 and not earlier.** A later cutoff is better on *both* axes, which is
+not the trade-off a reader expects: earlier cutoffs hold out more responses but score
+far fewer of them. At 2023-01-01 the held-out period is 90.92% of the bank and only
+**4.43%** of it is scoreable; at 2024-01-01, 9.15%; at 2025-01-01, 20.10%. The later
+cutoff gives both more training data and more scoreable test responses in absolute
+terms. The cutoff is a parameter of the gate and moving it moves the baseline with it,
+so it is stated here rather than chosen at fit time.
+
+**Why so much of the period lands on new items:** 447 problems — 3.8% of the bank —
+carry 1,980,416 responses first attempted in 2026. A newly published problem draws a
+burst of attempts from a cohort collected with `activeOnly=true`, so recency
+concentrates responses onto exactly the items that have no history. That is a fact
+about the cohort, not about the gates, and it is why G3's population is the second
+largest here.
+
+**An unexplained base-rate shift, recorded rather than rationalised.** The bank's base
+rate is stable at 52–57% from 2010 through 2025 and then reads **60.578%** in 2026.
+Two explanations were tested and both failed: it is not the new items, which run
+60.878% against 60.329% for old ones, a 0.55pp difference against a 3.69pp
+year-on-year lift; and it is not the administered mix, since 2026 is 32.84%
+administered against 35.3% across the bank, below average rather than above. No
+explanation is offered. It matters because the baseline is computed on this period,
+and a shift nobody understands is a reason to publish the baseline beside every score
+rather than to trust a figure carried forward.
 
 **Runs:** on every change to `mind/models/**`. Blocks model release.
 
