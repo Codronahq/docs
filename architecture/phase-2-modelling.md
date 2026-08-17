@@ -157,10 +157,24 @@ proceeds on a stage whose gate has not been proven capable of failing.
 
 ### Stage A — Hierarchical IRT 2PL
 
-**Not a free 2PL.** Difficulty is drawn from a prior conditioned on `problem_rating`
-and `log(solved_count)`, so a thin item shrinks toward its prior instead of fitting
-noise, and a dense item overrides it. This is the only structure under which the hard
-bands are estimable at all.
+**Not a free 2PL.** Difficulty is drawn from a prior conditioned on the problem's
+published rating and its solve count, so a thin item shrinks toward its prior instead
+of fitting noise, and a dense item overrides it. This is the only structure under which
+the hard bands are estimable at all.
+
+**The prior consumes three columns and not two, and they are named here because this
+document specified two until 17 Aug 2026 while `mind` already emitted three.**
+`ItemCovariates`, in `mind/src/codrona_mind/priors.py`, emits `rating_z`,
+`log_solved_z` and `is_unrated` over the bank's 11,764 items in sorted item order. Both
+continuous covariates are standardised, with the centring and scale recorded on the
+object rather than recomputed at fit time, so the fit and any later scoring share one
+transform. `is_unrated` marks the 713 bank items carrying no published rating, whose
+rating is imputed at the median of the rated items: an indicator beside an imputed value
+is what lets the fit learn a separate offset for them instead of treating the imputation
+as an observation. **The coefficients on all three are learned, never set.** The median
+is taken with exact `pc.quantile` and never `pc.approximate_median`, which is a t-digest,
+is chunk-unstable, and reached real data once as an imputed rating of 1828.5 — caught
+only because Codeforces ratings sit on a 100-point grid.
 
 **The second covariate carries publication date, and this changes what the prior is
 allowed to be.** Measured 16 Aug 2026 over the bank: with rating removed as a factor,
@@ -169,11 +183,13 @@ in 1600-1999 — a fifth of the residual variance the covariate exists to explai
 the sign crosses zero between rating 2700 and 2800. Three things bind this stage as a
 result. A single global date term is provably wrong, so any date term must vary with
 rating. `log(solved_count)` needs a guard, because 31 bank problems carry
-`solved_count = 0` and this document specified no such guard. And the fit must emit a
-post-fit diagnostic correlating the fitted difficulty residual against contest id per
-band: that is the only thing separating a contaminated covariate from genuine drift in
-Codeforces' own calibration, and neither this document nor the measurement decides
-between them. Derivation in `analysis/solved-count-and-release-date.md`.
+`solved_count = 0`; this document specified none until 17 Aug 2026, and the shipped
+guard is `log1p`, exact at zero rather than an epsilon a reader has to reason about.
+And the fit must emit a post-fit diagnostic correlating the fitted difficulty
+residual against contest id per band: that is the only thing separating a
+contaminated covariate from genuine drift in Codeforces' own calibration, and
+neither this document nor the measurement decides between them. Derivation in
+`analysis/solved-count-and-release-date.md`.
 
 **The ability side gets a population prior and no covariate, and that is a decision
 rather than an omission.** Hierarchical already means ability is drawn from a
@@ -534,6 +550,20 @@ violating that gate, or depend on `lens` anyway. The boundary between the two
 repositories is the emitted artefact: `lens` writes the matrix, `mind` reads a file and
 never sees the warehouse. The gate shipped in the same commit as the builder, because a
 builder without its assertions is how 11,176,774 quietly becomes something else.
+
+**The boundary is enforced on both sides, not declared on one.** The manifest gating the
+artefact is committed in `lens`, and `mind` cannot see it — so `mind` could fit a stale
+Parquet with nothing able to notice, which is the failure the manifest exists to prevent,
+one repository over. Three things close it. `lens` writes the manifest twice: the
+committed copy stays the reviewable and gated half, and a byte-identical sidecar lands
+beside the artefact so the directory is self-describing, with `compare_sidecar` comparing
+the two, because two copies with nothing comparing them is how the second one starts
+lying. `codrona_mind.responses` reads both and refuses a stale artefact rather than
+fitting it. And it **recomputes the evaluation partition in Arrow and fails if it
+disagrees with what `lens` measured in DuckDB** — two engines, two code paths, one
+answer, which is the pairing that confirmed every Phase 1 corpus figure. Column types are
+deliberately not compared, since DuckDB and Arrow name the same type differently and an
+equality on those names would fail on correct data.
 
 **Two of the six assertions above were wrong when built, and both are recorded rather
 than quietly corrected.** `twin remap key count` measured 1,180 against the 1,182 here,

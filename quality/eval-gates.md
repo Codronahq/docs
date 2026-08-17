@@ -502,6 +502,8 @@ figure in this document silently describes a different population.
 | Pinned counts match the real warehouse | 13 counts, exact | ENFORCED |
 | Committed manifest matches a fresh build | no differing count or column | ENFORCED |
 | Artefact on disk matches the manifest | row count and schema | ENFORCED |
+| Sidecar manifest matches the committed one | byte-identical | ENFORCED |
+| Consumer's partition matches the builder's | four counts, two engines | ENFORCED |
 
 **The gate is split in two, and the split is what makes it runnable.** The pinned
 counts are real-data figures — 23,607,105 fact rows, 22,843,153 attempts, 11,176,774
@@ -555,6 +557,16 @@ compared a fresh build against the manifest and never read the file, so an artef
 deleted, truncated or written by another code path passed clean — while the function's
 own docstring claimed to catch precisely that. The gate watched the manifest rather
 than the thing the manifest describes.
+
+**The far side of the boundary needed a gate of its own.** The committed manifest lives
+in `lens` and the repository that fits the model cannot see it, so every check above
+protects a link `mind` is not on. `--real-data` therefore writes the manifest twice, the
+second copy landing beside the Parquet, and `compare_sidecar` byte-compares them under
+both verification commands. `codrona_mind.responses` reads the sidecar, refuses a stale
+artefact, and recomputes the four partition counts in Arrow against what `lens` measured
+in DuckDB — 1,815,276 / 1,609,380 / 577,346 / 371,036, verified identical on real data.
+A count reproduced by a second engine on a second code path is the only form of this
+check that a shared bug cannot pass.
 
 **G11 and G13 are deliberately absent from this document.** They are specified in
 `architecture/phase-2-modelling.md` with status `DESIGNED`: they gate a serving path
