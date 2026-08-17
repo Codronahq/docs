@@ -109,9 +109,9 @@ earlier ones.
 
 **One cutoff partitions the held-out period across three gates, and each share is
 measured.** A test response can only be scored by G1 if both its user and its item
-carry fitted parameters. At 2026-01-01, over 4,373,038 held-out bank responses — the four parts sum to that
-total exactly, which is the check that caught three of them being arithmetic on
-rounded shares rather than counts when first published:
+carry fitted parameters. At 2026-01-01, over 4,373,038 held-out bank responses — the
+four parts sum to that total exactly, which is the check that caught three of them
+being arithmetic on rounded shares rather than counts when first published:
 
 | Population | Share | Responses | Scored by |
 |---|---|---|---|
@@ -131,7 +131,24 @@ far fewer of them. At 2023-01-01 the held-out period is 90.92% of the bank and o
 **4.43%** of it is scoreable; at 2024-01-01, 9.15%; at 2025-01-01, 20.10%. The later
 cutoff gives both more training data and more scoreable test responses in absolute
 terms. The cutoff is a parameter of the gate and moving it moves the baseline with it,
-so it is stated here rather than chosen at fit time.
+so it is stated here rather than chosen at fit time — and it is a real parameter,
+`--split-cutoff`, not a number retyped into a document.
+
+**Every figure in this section is gated, and until 17 Aug 2026 none of them was.** The
+partition is computed by `codrona_lens.responses.matrix`, written into
+`exports/model/responses.manifest.json` under `split`, and compared against a fresh
+build by `--verify-current` alongside every other count. Three G12 invariants run on
+every push, against CI fixtures rather than only under `--real-data`, because each
+holds on any dataset: train plus test equals the bank, the four parts sum to the
+held-out total, and G1's accepted count cannot exceed its partition. A fourth refuses
+a cutoff that leaves the held-out period non-empty with nothing scoreable in it.
+
+That is the difference between this section and the version of it published two hours
+earlier. These counts were prose derived from an artefact, and prose derived from an
+artefact rots the moment the artefact moves, with nothing to notice — which is exactly
+the failure G12 exists for, one level up from where G12 was looking. The arithmetic
+error that produced the wrong counts would now be a red test rather than something a
+reader has to catch by adding up a column.
 
 **Why so much of the period lands on new items:** 447 problems — 3.8% of the bank —
 carry 1,980,416 responses first attempted in 2026 (the G3 and both-new rows above sum to
