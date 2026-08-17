@@ -109,14 +109,16 @@ earlier ones.
 
 **One cutoff partitions the held-out period across three gates, and each share is
 measured.** A test response can only be scored by G1 if both its user and its item
-carry fitted parameters. At 2026-01-01, over 4,373,038 held-out bank responses:
+carry fitted parameters. At 2026-01-01, over 4,373,038 held-out bank responses — the four parts sum to that
+total exactly, which is the check that caught three of them being arithmetic on
+rounded shares rather than counts when first published:
 
 | Population | Share | Responses | Scored by |
 |---|---|---|---|
-| known user × known item | **41.51%** | 1,815,276 | **G1** |
-| new item only | 36.80% | 1,609,278 | **G3** |
-| new user only | 13.20% | 577,241 | **G2** |
-| both new | 8.49% | 371,271 | G2 ∩ G3 |
+| known user × known item | **41.5106%** | 1,815,276 | **G1** |
+| new item only | 36.8023% | 1,609,380 | **G3** |
+| new user only | 13.2024% | 577,346 | **G2** |
+| both new | 8.4846% | 371,036 | G2 ∩ G3 |
 
 **G1 covering 41.51% is its scope, not a shortfall** — provided the other 58.49% is
 routed to G2 and G3 rather than dropped. A held-out response that no gate claims is a
@@ -132,7 +134,8 @@ terms. The cutoff is a parameter of the gate and moving it moves the baseline wi
 so it is stated here rather than chosen at fit time.
 
 **Why so much of the period lands on new items:** 447 problems — 3.8% of the bank —
-carry 1,980,416 responses first attempted in 2026. A newly published problem draws a
+carry 1,980,416 responses first attempted in 2026 (the G3 and both-new rows above sum to
+1,980,416). A newly published problem draws a
 burst of attempts from a cohort collected with `activeOnly=true`, so recency
 concentrates responses onto exactly the items that have no history. That is a fact
 about the cohort, not about the gates, and it is why G3's population is the second
